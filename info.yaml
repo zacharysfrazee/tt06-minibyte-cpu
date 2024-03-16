@@ -19,6 +19,7 @@ project:
     - "cpu.v"
     - "alu.v"
     - "register.v"
+    - "mux.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
