@@ -4,7 +4,7 @@
  */
 
 //---------------------------------------------------------------------------------------------------------
-//MINIBYTE ALU
+// MINIBYTE ALU
 //---------------------------------------------------------------------------------------------------------
 // OPERATION | ALU_OP | MEANING
 //---------------------------------------------------------------------------------------------------------
@@ -22,15 +22,18 @@
 //ALU Module
 //--------------------------
 module minibyte_alu (
+    //ALU Inputs
     input  wire [7:0] a_in,
     input  wire [7:0] b_in,
     input  wire [2:0] alu_op_in,
+
+    //ALU Outputs
     output reg  [7:0] res_out,
     output reg        flag_z_out,
     output reg        flag_n_out
 );
 
-    //Main Procedural block
+    //Main Procedural Block
     //--------------------------
     always @(*) begin
 

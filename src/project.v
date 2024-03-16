@@ -5,6 +5,9 @@
 
 `define default_netname none
 
+//---------------------------------
+//Top Level Project Module
+//---------------------------------
 module tt_um_minibyte (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
@@ -16,22 +19,27 @@ module tt_um_minibyte (
     input  wire       rst_n     // reset_n - low to reset
 );
 
-  //Temp dummy wire up ALU
-  minibyte_alu alu(
-    .a_in(ui_in),
-    .b_in(uio_in),
-    .alu_op_in(uio_in[2:0]),
-    .res_out(uo_out),
-    .flag_z_out(uio_out[0]),
-    .flag_n_out(uio_out[1])
-  );
+    //---------------------------------
+    //Minibyte CPU
+    //---------------------------------
+    minibyte_cpu cpu(
+        //Basic Inputs
+        .clk_in(clk_in), .rst_in(rst_in),
 
-  assign uio_out[7:2] = 0;
-  assign uio_oe       = 'hff;
+        //Memory and IO Inputs
+        .data_in(uio_in),
 
-  // All output pins must be assigned. If not used, assign to 0.
-  //assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  //assign uio_out = 0;
-  //assign uio_oe  = 0;
+        //Memory and IO Outputs
+        .addr_out(uo_out),
+        .data_out(uio_out),
+        .we_out  (uio_oe[0])
+    );
+
+    assign uio_oe[7:1] = 0;
+
+    // All output pins must be assigned. If not used, assign to 0.
+    //assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
+    //assign uio_out = 0;
+    //assign uio_oe  = 0;
 
 endmodule
