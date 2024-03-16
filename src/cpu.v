@@ -23,6 +23,9 @@ module minibyte_cpu (
     //--------------------------------
     wire [7:0] main_buss;
 
+    //Data out comes from the main buss
+    assign data_out = main_buss;
+
 
     //ALU A-Side Input Data Buss
     //--------------------------------
@@ -51,6 +54,10 @@ module minibyte_cpu (
 
     //Alu control signals
     wire [2:0] ctrl_alu_op;
+
+    //Data direction control
+    wire   ctrl_we_out;
+    assign we_out=ctrl_we_out;
 
 
     //Branch Signals
@@ -116,7 +123,7 @@ module minibyte_cpu (
         .sel_in(ctrl_addr_mux),
 
         //Mux Output
-        .mux_out(data_out)
+        .mux_out(addr_out)
     );
 
 
@@ -142,5 +149,7 @@ module minibyte_cpu (
     assign ctrl_inc_oc=0;
     assign ctrl_addr_mux=0;
     assign ctrl_alu_op=0;
+
+    assign ctrl_we_out=0;
 
 endmodule
