@@ -10,12 +10,12 @@
 //---------------------------------------------------------------------------------------------------------
 // PASSA     | 0b000  | Passthrough input A
 // PASSB     | 0b001  | Passthrough input B
-// PASSB     | 0b010  | Add A and B
-// PASSB     | 0b011  | Subtract B from A
-// PASSB     | 0b100  | Logical and of A, B
-// PASSB     | 0b101  | Logical or of A, B
-// PASSB     | 0b110  | Logical xor of A, B
-// PASSB     | 0b111  | Rotate 1 bit based on sign of B (left if B is positive, right if B is negative)
+// ADD       | 0b010  | Add A and B
+// SUB       | 0b011  | Subtract B from A
+// AND       | 0b100  | Logical and of A, B
+// OR        | 0b101  | Logical or of A, B
+// XOR       | 0b110  | Logical xor of A, B
+// ROLS      | 0b111  | Rotate 1 bit based on sign of B (left if B is positive, right if B is negative)
 //---------------------------------------------------------------------------------------------------------
 
 //--------------------------
