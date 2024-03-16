@@ -16,9 +16,21 @@ module tt_um_minibyte (
     input  wire       rst_n     // reset_n - low to reset
 );
 
+  //Temp dummy wire up ALU
+  minibyte_alu alu(
+    .a_in(ui_in),
+    .b_in(uio_in),
+    .alu_op_in(uio_in[2:0]),
+    .res_out(uo_out),
+    .flag_z_out(uio_oe[0]),
+    .flag_n_out(uio_oe[1])
+  );
+
+  assign uio_oe[7:2] = 0;
+
   // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+  //assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
+  //assign uio_out = 0;
+  //assign uio_oe  = 0;
 
 endmodule
