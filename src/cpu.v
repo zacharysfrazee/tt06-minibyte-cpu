@@ -143,12 +143,12 @@ module minibyte_cpu (
 
     //TEMP DRIVE CONTROL SIGNALS
     //--------------------------------
-    assign ctrl_set_a=0;
-    assign ctrl_set_m=0;
-    assign ctrl_set_pc=0;
-    assign ctrl_inc_oc=0;
-    assign ctrl_addr_mux=0;
-    assign ctrl_alu_op=0;
+    assign ctrl_set_a=data_in[0];
+    assign ctrl_set_m=data_in[1];
+    assign ctrl_set_pc=data_in[2];
+    assign ctrl_inc_oc=data_in[3];
+    assign ctrl_addr_mux=data_in[4];
+    assign ctrl_alu_op=data_in[4:2];
 
     assign ctrl_we_out=0;
 
