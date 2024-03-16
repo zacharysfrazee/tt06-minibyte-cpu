@@ -23,6 +23,7 @@ module minibyte_cpu (
     //--------------------------------
     wire [7:0] main_buss;
 
+
     //ALU A-Side Input Data Buss
     //--------------------------------
     wire [7:0] alu_a_buss;
@@ -32,6 +33,7 @@ module minibyte_cpu (
     //--------------------------------
     wire [7:0] m_addr_buss;
     wire [7:0] pc_addr_buss;
+
 
     //Control Signals
     //--------------------------------
@@ -43,6 +45,19 @@ module minibyte_cpu (
 
     //Inc register signals
     wire ctrl_inc_oc;
+
+    //Addr mux signals
+    wire ctrl_addr_mux;
+
+    //Alu control signals
+    wire [2:0] ctrl_alu_op;
+
+
+    //Branch Signals
+    //--------------------------------
+    wire br_zero;
+    wire br_negative;
+
 
     //A Register
     //--------------------------------
@@ -58,6 +73,7 @@ module minibyte_cpu (
         .reg_out(alu_a_buss)
     );
 
+
     //M Register
     //--------------------------------
     minibyte_genreg reg_m(
@@ -71,6 +87,7 @@ module minibyte_cpu (
         //Register Outputs
         .reg_out(m_addr_buss)
     );
+
 
     //PC Register
     //--------------------------------
@@ -86,5 +103,44 @@ module minibyte_cpu (
         //Register Outputs
         .reg_out(pc_addr_buss)
     );
+
+
+    //Addr Out Mux
+    //--------------------------------
+    minibyte_genmux addr_mux(
+        //Mux Inputs
+        .a_in(pc_addr_buss),
+        .b_in(m_addr_buss),
+
+        //Mux Select
+        .sel_in(ctrl_addr_mux),
+
+        //Mux Output
+        .mux_out(data_out)
+    );
+
+
+    //ALU
+    //--------------------------------
+    minibyte_alu alu(
+        //ALU Inputs
+        .a_in(alu_a_buss),
+        .b_in(data_in),
+        .alu_op_in(ctrl_alu_op),
+
+        .res_out(main_buss),
+        .flag_z_out(br_zero),
+        .flag_n_out(br_negative)
+    );
+
+
+    //TEMP DRIVE CONTROL SIGNALS
+    //--------------------------------
+    assign ctrl_set_a=0;
+    assign ctrl_set_m=0;
+    assign ctrl_set_pc=0;
+    assign ctrl_inc_oc=0;
+    assign ctrl_addr_mux=0;
+    assign ctrl_alu_op=0;
 
 endmodule
