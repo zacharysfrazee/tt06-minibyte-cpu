@@ -17,6 +17,7 @@ project:
   source_files:
     - "project.v"
     - "cpu.v"
+    - "control_unit.v"
     - "alu.v"
     - "register.v"
     - "mux.v"
