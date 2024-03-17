@@ -36,6 +36,7 @@ module minibyte_cpu (
     //--------------------------------
     wire [7:0] m_addr_buss;
     wire [7:0] pc_addr_buss;
+    wire [7:0] ir_op_buss;
 
 
     //Control Signals
@@ -45,9 +46,10 @@ module minibyte_cpu (
     wire ctrl_set_a;
     wire ctrl_set_m;
     wire ctrl_set_pc;
+    wire ctrl_set_ir;
 
     //Inc register signals
-    wire ctrl_inc_oc;
+    wire ctrl_inc_pc;
 
     //Addr mux signals
     wire ctrl_addr_mux;
@@ -105,10 +107,24 @@ module minibyte_cpu (
         //Register Inputs
         .reg_in(main_buss),
         .set_in(ctrl_set_pc),
-        .inc_in(ctrl_inc_oc),
+        .inc_in(ctrl_inc_pc),
 
         //Register Outputs
         .reg_out(pc_addr_buss)
+    );
+
+    //IR Register
+    //--------------------------------
+    minibyte_genreg reg_ir(
+        //Basic Inputs
+        .clk_in(clk_in), .rst_in(rst_in),
+
+        //Register Inputs
+        .reg_in(main_buss),
+        .set_in(ctrl_set_ir),
+
+        //Register Outputs
+        .reg_out(ir_op_buss)
     );
 
 
@@ -141,15 +157,34 @@ module minibyte_cpu (
     );
 
 
-    //TEMP DRIVE CONTROL SIGNALS
+    //Control Unit
     //--------------------------------
-    assign ctrl_set_a=data_in[0];
-    assign ctrl_set_m=data_in[1];
-    assign ctrl_set_pc=data_in[2];
-    assign ctrl_inc_oc=data_in[3];
-    assign ctrl_addr_mux=data_in[4];
-    assign ctrl_alu_op=data_in[4:2];
+    minibyte_cu cu(
+        //Basic Inputs
+        .clk_in(clk_in), .rst_in(rst_in),
 
-    assign ctrl_we_out=0;
+        //IR Input
+        .ir_op_buss_in(ir_op_buss),
+
+        //ALU Flags Input
+        .alu_flag_z_in(br_zero),
+        .alu_flag_n_in(br_negative),
+
+        //Control signal outputs
+        .set_a_out(ctrl_set_a),
+        .set_m_out(ctrl_set_m),
+        .set_pc_out(ctrl_set_pc),
+        .set_ir_out(ctrl_set_ir),
+        .inc_pc_out(ctrl_inc_pc),
+
+        //Addr select signals
+        .addr_mux_out(ctrl_addr_mux),
+
+        //Alu control signals
+        .alu_op_out(ctrl_alu_op),
+
+        //Write to memory
+        .we_out(ctrl_we_out)
+    );
 
 endmodule
