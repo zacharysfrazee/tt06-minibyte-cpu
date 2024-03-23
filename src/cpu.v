@@ -16,7 +16,8 @@ module minibyte_cpu (
     //Memory and IO Outputs
     output wire [7:0] addr_out,
     output wire [7:0] data_out,
-    output wire       we_out
+    output wire       we_out,
+    output wire       drive_out
 );
 
     //Main Data Buss
@@ -52,14 +53,16 @@ module minibyte_cpu (
     wire ctrl_inc_pc;
 
     //Addr mux signals
-    wire ctrl_addr_mux;
+    wire [1:0] ctrl_addr_mux;
 
     //Alu control signals
     wire [2:0] ctrl_alu_op;
 
     //Data direction control
     wire   ctrl_we_out;
+    wire   ctrl_drive_out;
     assign we_out=ctrl_we_out;
+    assign drive_out=ctrl_drive_out;
 
 
     //Branch Signals
@@ -134,6 +137,8 @@ module minibyte_cpu (
         //Mux Inputs
         .a_in(pc_addr_buss),
         .b_in(m_addr_buss),
+        .c_in(8'hff),
+        .d_in(8'hff),
 
         //Mux Select
         .sel_in(ctrl_addr_mux),
@@ -184,7 +189,10 @@ module minibyte_cpu (
         .alu_op_out(ctrl_alu_op),
 
         //Write to memory
-        .we_out(ctrl_we_out)
+        .we_out(ctrl_we_out),
+
+        //Drive enable on data bus
+        .drive_out(ctrl_drive_out)
     );
 
 endmodule

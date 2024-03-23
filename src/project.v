@@ -20,6 +20,12 @@ module tt_um_minibyte (
 );
 
     //---------------------------------
+    //Wires
+    //---------------------------------
+    wire drive_enable_sig;
+    wire nc_addr_bus_bit_7;
+
+    //---------------------------------
     //Minibyte CPU
     //---------------------------------
     minibyte_cpu cpu(
@@ -30,16 +36,21 @@ module tt_um_minibyte (
         .data_in(uio_in),
 
         //Memory and IO Outputs
-        .addr_out(uo_out),
-        .data_out(uio_out),
-        .we_out  (uio_oe[0])
+        .addr_out   ({nc_addr_bus_bit_7,uo_out[6:0]}),  //Only 7 bits get connected :(
+        .data_out   (uio_out),
+        .we_out     (uo_out[7]),                        //Dedicated output bit 7 gets used for WE
+        .drive_out  (drive_enable_sig)
     );
 
-    assign uio_oe[7:1] = 0;
+    //---------------------------------
+    //Output drive control
+    //---------------------------------
+    drive_enable_fanout oe_driver(
+        //Drive enable input signal
+        .drive_en(drive_enable_sig),
 
-    // All output pins must be assigned. If not used, assign to 0.
-    //assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-    //assign uio_out = 0;
-    //assign uio_oe  = 0;
+        //Output drive signals
+        .drive(uio_oe)
+    );
 
 endmodule
