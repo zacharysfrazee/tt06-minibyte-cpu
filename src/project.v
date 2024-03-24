@@ -35,15 +35,18 @@ module tt_um_minibyte (
         //Memory and IO Inputs
         .data_in(uio_in),
 
+        //DFT Inputs
+        .tm_control(ui_in),
+
         //Memory and IO Outputs
-        .addr_out   ({nc_addr_bus_bit_7,uo_out[6:0]}),  //Only 7 bits get connected :(
+        .addr_out   ({nc_addr_bus_bit_7,uo_out[6:0]}),  //Only 7 bits get connected as we need to save one output for WE below:(
         .data_out   (uio_out),
         .we_out     (uo_out[7]),                        //Dedicated output bit 7 gets used for WE
         .drive_out  (drive_enable_sig)
     );
 
     //---------------------------------
-    //Output drive control
+    //Output enable control
     //---------------------------------
     drive_enable_fanout oe_driver(
         //Drive enable input signal

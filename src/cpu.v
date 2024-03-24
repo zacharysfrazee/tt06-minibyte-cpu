@@ -13,6 +13,9 @@ module minibyte_cpu (
     //Memory and IO Inputs
     input  wire [7:0] data_in,
 
+    //DFT Testmode Inputs
+    input  wire [7:0] tm_control,
+
     //Memory and IO Outputs
     output wire [7:0] addr_out,
     output wire [7:0] data_out,
@@ -38,7 +41,11 @@ module minibyte_cpu (
     wire [7:0] m_addr_buss;
     wire [7:0] pc_addr_buss;
     wire [7:0] ir_op_buss;
+    wire [7:0] normal_addr_out;
 
+    //DFT Wires
+    //--------------------------------
+    wire [7:0] dft_cu_state;
 
     //Control Signals
     //--------------------------------
@@ -133,7 +140,7 @@ module minibyte_cpu (
 
     //Addr Out Mux
     //--------------------------------
-    minibyte_genmux addr_mux(
+    minibyte_genmux_4x addr_mux(
         //Mux Inputs
         .a_in(pc_addr_buss),
         .b_in(m_addr_buss),
@@ -144,9 +151,29 @@ module minibyte_cpu (
         .sel_in(ctrl_addr_mux),
 
         //Mux Output
-        .mux_out(addr_out)
+        .mux_out(normal_addr_out)
     );
 
+
+    //Debug Out Mux
+    //--------------------------------
+    minibyte_genmux_8x tm_debug_out_mux(
+        //Mux Inputs
+        .a_in(normal_addr_out),        //0 -> Normal   output
+        .b_in(alu_a_buss),             //1 -> A        output
+        .c_in(m_addr_buss),            //2 -> M        output
+        .d_in(pc_addr_buss),           //3 -> PC       output
+        .e_in(ir_op_buss),             //4 -> IR       output
+        .f_in({5'h00,ctrl_alu_op}),    //5 -> ALU OP   output
+        .g_in(8'h7a),                  //6 -> CCR      output
+        .h_in(dft_cu_state),           //7 -> CU STATE output
+
+        //Mux Select
+        .sel_in(tm_control[2:0]),
+
+        //Mux Output
+        .mux_out(addr_out)
+    );
 
     //ALU
     //--------------------------------
@@ -192,7 +219,10 @@ module minibyte_cpu (
         .we_out(ctrl_we_out),
 
         //Drive enable on data bus
-        .drive_out(ctrl_drive_out)
+        .drive_out(ctrl_drive_out),
+
+        //DFT Output
+        .dft_curr_state(dft_cu_state)
     );
 
 endmodule

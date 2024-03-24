@@ -34,13 +34,19 @@ module minibyte_cu(
     output reg        we_out,
 
     //Drive enable on data bus
-    output reg        drive_out
+    output reg        drive_out,
+
+    //DFT Output
+    output reg  [7:0] dft_curr_state
 );
 
     //State machine memory
     //--------------------------
     reg [7:0] curr_state, next_state;
 
+    //DFT Output
+    //--------------------------
+    assign dft_curr_state = curr_state;
 
     //CPU IR opcodes
     //--------------------------
