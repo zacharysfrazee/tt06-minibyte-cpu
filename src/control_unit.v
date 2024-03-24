@@ -25,7 +25,7 @@ module minibyte_cu(
     output reg        inc_pc_out,
 
     //Addr select signals
-    output reg [1:0]  addr_mux_out,
+    output reg        addr_mux_out,
 
     //Alu control signals
     output reg [2:0]  alu_op_out,
@@ -172,7 +172,7 @@ module minibyte_cu(
                 set_ir_out   = 0;
 
                 //PC selected
-                addr_mux_out = 2; //Output 0xFF
+                addr_mux_out = 0;
 
                 //ALU dont care
                 alu_op_out   = 0;

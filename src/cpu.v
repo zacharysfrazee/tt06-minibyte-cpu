@@ -60,7 +60,7 @@ module minibyte_cpu (
     wire ctrl_inc_pc;
 
     //Addr mux signals
-    wire [1:0] ctrl_addr_mux;
+    wire       ctrl_addr_mux;
 
     //Alu control signals
     wire [2:0] ctrl_alu_op;
@@ -140,12 +140,10 @@ module minibyte_cpu (
 
     //Addr Out Mux
     //--------------------------------
-    minibyte_genmux_4x addr_mux(
+    minibyte_genmux_2x addr_mux(
         //Mux Inputs
         .a_in(pc_addr_buss),
         .b_in(m_addr_buss),
-        .c_in(8'hff),
-        .d_in(8'hff),
 
         //Mux Select
         .sel_in(ctrl_addr_mux),

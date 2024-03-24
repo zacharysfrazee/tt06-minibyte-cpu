@@ -31,44 +31,6 @@ module minibyte_genmux_2x(
 
 endmodule
 
-//---------------------------------
-//Generic 4->1 Mux Module
-//---------------------------------
-module minibyte_genmux_4x(
-    //Mux Inputs
-    input  wire [7:0] a_in,
-    input  wire [7:0] b_in,
-    input  wire [7:0] c_in,
-    input  wire [7:0] d_in,
-
-    //Mux Select
-    input  wire [1:0] sel_in,
-
-    //Mux Output
-    output reg  [7:0] mux_out
-);
-
-    //Main Procedural Block
-    //--------------------------
-    always @(*) begin
-        //A out if sel is 00
-        if(sel_in == 2'b00)
-            mux_out = a_in;
-
-        //B out if sel is 01
-        else if(sel_in == 2'b01)
-            mux_out = b_in;
-
-        //C out if sel is 10
-        else if(sel_in == 2'b10)
-            mux_out = c_in;
-
-        //D out if sel is 11
-        else
-            mux_out = d_in;
-    end
-
-endmodule
 
 //---------------------------------
 //Generic 8->1 Mux Module

@@ -33,7 +33,7 @@ CYCLES_STA_IMM = 9 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IMM_0->S
 
 #Test NOP instruction
 #-------------------------
-#@cocotb.test()
+@cocotb.test()
 async def test_nop(dut):
     #Start
     dut._log.info("Start")
@@ -68,7 +68,7 @@ async def test_nop(dut):
 
 #Test LDA_IMM/STA_IMM instruction
 #-------------------------
-#@cocotb.test()
+@cocotb.test()
 async def test_lda_imm_sta_imm(dut):
     #Start
     dut._log.info("Start")
