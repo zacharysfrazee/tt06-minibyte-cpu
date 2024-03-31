@@ -63,7 +63,7 @@ module minibyte_cpu (
     wire       ctrl_addr_mux;
 
     //Alu control signals
-    wire [2:0] ctrl_alu_op;
+    wire [3:0] ctrl_alu_op;
 
     //Data direction control
     wire   ctrl_we_out;

@@ -23,23 +23,32 @@ TM_DEBUG_OUT_CU_STATE = 0x07
 
 #IR Opcodes
 #-------------------------
-IR_NOP     = 0
+IR_NOP     = 0x00
 
-IR_LDA_IMM = 1
-IR_LDA_DIR = 2
-IR_STA_IMM = 3
-IR_STA_DIR = 4
+IR_LDA_IMM = 0x01
+IR_LDA_DIR = 0x02
+IR_STA_IMM = 0x03
+IR_STA_DIR = 0x04
 
-IR_ADD_IMM = 5
-IR_ADD_DIR = 6
-IR_SUB_IMM = 7
-IR_SUB_DIR = 8
-IR_AND_IMM = 9
-IR_AND_DIR = 10
-IR_OR_IMM  = 11
-IR_OR_DIR  = 12
-IR_XOR_IMM = 13
-IR_XOR_DIR = 14
+IR_ADD_IMM = 0x05
+IR_ADD_DIR = 0x06
+IR_SUB_IMM = 0x07
+IR_SUB_DIR = 0x08
+IR_AND_IMM = 0x09
+IR_AND_DIR = 0x0A
+IR_OR_IMM  = 0x0B
+IR_OR_DIR  = 0x0C
+IR_XOR_IMM = 0x0D
+IR_XOR_DIR = 0x0E
+IR_LSL_IMM = 0x0F
+IR_LSL_DIR = 0x10
+IR_LSR_IMM = 0x11
+IR_LSR_DIR = 0x12
+IR_ASL_IMM = 0x13
+IR_ASL_DIR = 0x14
+IR_ASR_IMM = 0x15
+IR_ASR_DIR = 0x16
+
 
 #IR Cycle Counts
 #-------------------------
@@ -366,8 +375,22 @@ async def test_alu_imm(dut):
     #Clock through the reset state S_RESET_0->S_FETCH_0(current)
     await ClockCycles(dut.clk, 2)
 
-    #Test 1000 Random Values
-    test_vals = [(random.randint(0, 255), random.randint(0, 255)) for _ in range(1000)]
+    #Test 500 Random Values
+    test_vals = [(random.randint(0, 255), random.randint(0, 255)) for _ in range(1000)] #1000 vals using large RHS
+    test_vals = [(random.randint(0, 255), random.randint(0, 7))   for _ in range(100)] #100 vals using small RHS (usefull for testing shifts and such)
+
+    #8-bit twos comp functions
+    def _2s_comp_to_pyint(x):
+        if x > 127:
+            return -((x ^ 0xff) + 1)
+        else:
+            return x
+
+    def pyint_to_2scomp(x):
+        if x < 0:
+            return (-x ^ 0xff) + 1
+        else:
+            return x
 
     #Test suite
     test_suite =[
@@ -405,6 +428,34 @@ async def test_alu_imm(dut):
             IR_XOR_IMM,
             CYCLES_ALU_IMM,
             lambda lhs, rhs : (lhs ^ rhs) & 0xff
+        ),
+        (
+            "LSL_IMM",
+            "<<",
+            IR_LSL_IMM,
+            CYCLES_ALU_IMM,
+            lambda lhs, rhs : (lhs << rhs) & 0xff
+        ),
+        (
+            "LSR_IMM",
+            ">>",
+            IR_LSR_IMM,
+            CYCLES_ALU_IMM,
+            lambda lhs, rhs : (lhs >> rhs) & 0xff
+        ),
+        (
+            "ASL_IMM",
+            "<<<",
+            IR_ASL_IMM,
+            CYCLES_ALU_IMM,
+            lambda lhs, rhs : pyint_to_2scomp(_2s_comp_to_pyint(lhs) << rhs) & 0xff
+        ),
+        (
+            "ASR_IMM",
+            ">>>",
+            IR_ASR_IMM,
+            CYCLES_ALU_IMM,
+            lambda lhs, rhs : pyint_to_2scomp(_2s_comp_to_pyint(lhs) >> rhs) & 0xff
         ),
     ]
 

@@ -8,14 +8,17 @@
 //---------------------------------------------------------------------------------------------------------
 // OPERATION | ALU_OP | MEANING
 //---------------------------------------------------------------------------------------------------------
-// PASSA     | 0b000  | Passthrough input A
-// PASSB     | 0b001  | Passthrough input B
-// ADD       | 0b010  | Add A and B
-// SUB       | 0b011  | Subtract B from A
-// AND       | 0b100  | Logical and of A, B
-// OR        | 0b101  | Logical or of A, B
-// XOR       | 0b110  | Logical xor of A, B
-// ROLS      | 0b111  | Rotate 1 bit based on sign of B (left if B is positive, right if B is negative)
+// PASSA     | 0b0000  | Passthrough input A
+// PASSB     | 0b0001  | Passthrough input B
+// ADD       | 0b0010  | Add A and B
+// SUB       | 0b0011  | Subtract B from A
+// AND       | 0b0100  | Logical and of A, B
+// OR        | 0b0101  | Logical or of A, B
+// XOR       | 0b0110  | Logical xor of A, B
+// LSL       | 0b0111  | Logical shift A left by B
+// LSR       | 0b1000  | Logical shift A right by B
+// ASL       | 0b1001  | Arithmetic shift A left by B
+// ASR       | 0b1002  | Arithmetic shift A right by B
 //---------------------------------------------------------------------------------------------------------
 
 //--------------------------
@@ -23,14 +26,14 @@
 //--------------------------
 module minibyte_alu (
     //ALU Inputs
-    input  wire [7:0] a_in,
-    input  wire [7:0] b_in,
-    input  wire [2:0] alu_op_in,
+    input wire signed [7:0] a_in,
+    input wire signed [7:0] b_in,
+    input wire        [3:0] alu_op_in,
 
     //ALU Outputs
-    output reg  [7:0] res_out,
-    output reg        flag_z_out,
-    output reg        flag_n_out
+    output reg signed [7:0] res_out,
+    output reg              flag_z_out,
+    output reg              flag_n_out
 );
 
     //Main Procedural Block
@@ -43,48 +46,59 @@ module minibyte_alu (
 
             //A Passthrough
             //--------------
-            3'b000:
+            4'b0000:
                 res_out = a_in;
 
             //B Passthrough
             //--------------
-            3'b001:
+            4'b0001:
                 res_out = b_in;
 
             //Addition
             //--------------
-            3'b010:
+            4'b0010:
                 res_out = a_in + b_in;
 
             //Subtraction
             //--------------
-            3'b011:
+            4'b0011:
                 res_out = a_in - b_in;
 
             //Logical AND
             //--------------
-            3'b100:
+            4'b0100:
                 res_out = a_in & b_in;
 
             //Logical OR
             //--------------
-            3'b101:
+            4'b0101:
                 res_out = a_in | b_in;
 
             //Logical XOR
             //--------------
-            3'b110:
+            4'b0110:
                 res_out = a_in ^ b_in;
 
-            //Rotate left by 1 bit based on sign of B
+            //Logical Shift Left
             //--------------
-            3'b111:
-                //Rotate right if B is negative
-                if(b_in[7] == 1)
-                    res_out = (a_in << 1) | (a_in >> 7);
-                //Rotate left otherwise
-                else
-                    res_out = (a_in >> 1) | (a_in << 7);
+            4'b0111:
+                res_out = a_in << b_in;
+
+            //Logical Shift Right
+            //--------------
+            4'b1000:
+                res_out = a_in >> b_in;
+
+            //Arithmetic Shift Left
+            //--------------
+            4'b1001:
+                res_out = a_in <<< b_in;
+
+            //Arithmetic Shift Right
+            //--------------
+            4'b1010:
+                res_out = a_in >>> b_in;
+
 
             //Default (SHOULD NEVER GET HERE)
             //--------------

@@ -28,7 +28,7 @@ module minibyte_cu(
     output reg        addr_mux_out,
 
     //Alu control signals
-    output reg [2:0]  alu_op_out,
+    output reg [3:0]  alu_op_out,
 
     //Write to memory
     output reg        we_out,
@@ -50,24 +50,31 @@ module minibyte_cu(
 
     //CPU IR opcodes
     //--------------------------
-    parameter IR_NOP     = 0;
+    parameter IR_NOP     = 8'h00;
 
-    parameter IR_LDA_IMM = 1;
-    parameter IR_LDA_DIR = 2;
-    parameter IR_STA_IMM = 3;
-    parameter IR_STA_DIR = 4;
+    parameter IR_LDA_IMM = 8'h01;
+    parameter IR_LDA_DIR = 8'h02;
+    parameter IR_STA_IMM = 8'h03;
+    parameter IR_STA_DIR = 8'h04;
 
-    parameter IR_ADD_IMM = 5;
-    parameter IR_ADD_DIR = 6;
-    parameter IR_SUB_IMM = 7;
-    parameter IR_SUB_DIR = 8;
-    parameter IR_AND_IMM = 9;
-    parameter IR_AND_DIR = 10;
-    parameter IR_OR_IMM  = 11;
-    parameter IR_OR_DIR  = 12;
-    parameter IR_XOR_IMM = 13;
-    parameter IR_XOR_DIR = 14;
-
+    parameter IR_ADD_IMM = 8'h05;
+    parameter IR_ADD_DIR = 8'h06;
+    parameter IR_SUB_IMM = 8'h07;
+    parameter IR_SUB_DIR = 8'h08;
+    parameter IR_AND_IMM = 8'h09;
+    parameter IR_AND_DIR = 8'h0A;
+    parameter IR_OR_IMM  = 8'h0B;
+    parameter IR_OR_DIR  = 8'h0C;
+    parameter IR_XOR_IMM = 8'h0D;
+    parameter IR_XOR_DIR = 8'h0E;
+    parameter IR_LSL_IMM = 8'h0F;
+    parameter IR_LSL_DIR = 8'h10;
+    parameter IR_LSR_IMM = 8'h11;
+    parameter IR_LSR_DIR = 8'h12;
+    parameter IR_ASL_IMM = 8'h13;
+    parameter IR_ASL_DIR = 8'h14;
+    parameter IR_ASR_IMM = 8'h15;
+    parameter IR_ASR_DIR = 8'h16;
 
     //State machine opcodes
     //--------------------------
@@ -139,7 +146,40 @@ module minibyte_cu(
     parameter S_XOR_DIR_0 = 47;
     parameter S_XOR_DIR_1 = 48;
     parameter S_XOR_DIR_2 = 49;
-    parameter S_XOR_DIR_3 = 40;
+    parameter S_XOR_DIR_3 = 50;
+
+    parameter S_LSL_IMM_0 = 51;
+    parameter S_LSL_IMM_1 = 52;
+
+    parameter S_LSL_DIR_0 = 53;
+    parameter S_LSL_DIR_1 = 54;
+    parameter S_LSL_DIR_2 = 55;
+    parameter S_LSL_DIR_3 = 56;
+
+    parameter S_LSR_IMM_0 = 57;
+    parameter S_LSR_IMM_1 = 58;
+
+    parameter S_LSR_DIR_0 = 59;
+    parameter S_LSR_DIR_1 = 60;
+    parameter S_LSR_DIR_2 = 61;
+    parameter S_LSR_DIR_3 = 62;
+
+    parameter S_ASL_IMM_0 = 63;
+    parameter S_ASL_IMM_1 = 64;
+
+    parameter S_ASL_DIR_0 = 65;
+    parameter S_ASL_DIR_1 = 66;
+    parameter S_ASL_DIR_2 = 67;
+    parameter S_ASL_DIR_3 = 68;
+
+    parameter S_ASR_IMM_0 = 69;
+    parameter S_ASR_IMM_1 = 70;
+
+    parameter S_ASR_DIR_0 = 71;
+    parameter S_ASR_DIR_1 = 72;
+    parameter S_ASR_DIR_2 = 73;
+    parameter S_ASR_DIR_3 = 74;
+
 
     //State memory block
     //--------------------------
@@ -221,7 +261,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -241,7 +281,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -261,7 +301,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -307,7 +347,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -327,7 +367,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -350,7 +390,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -370,7 +410,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -390,7 +430,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -410,7 +450,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -433,7 +473,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -453,7 +493,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -473,7 +513,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //A (A input) passthrough to main bus
-                alu_op_out   = 3'b000;
+                alu_op_out   = 4'b0000;
 
                 //Set WE so that the receiving device is ready for us to drive data
                 we_out       = 1;
@@ -493,7 +533,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //A (A input) passthrough to main bus
-                alu_op_out   = 3'b000;
+                alu_op_out   = 4'b0000;
 
                 //Drive out A data
                 we_out       = 1;
@@ -516,7 +556,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Addition
-                alu_op_out   = 3'b010;
+                alu_op_out   = 4'b0010;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -536,7 +576,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Addition
-                alu_op_out   = 3'b010;
+                alu_op_out   = 4'b0010;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -559,7 +599,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write
                 we_out       = 0;
@@ -578,7 +618,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -598,7 +638,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Addition
-                alu_op_out   = 3'b010;
+                alu_op_out   = 4'b0010;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -618,7 +658,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Addition
-                alu_op_out   = 3'b010;
+                alu_op_out   = 4'b0010;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -641,7 +681,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Subtraction
-                alu_op_out   = 3'b011;
+                alu_op_out   = 4'b0011;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -661,7 +701,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Subtraction
-                alu_op_out   = 3'b011;
+                alu_op_out   = 4'b0011;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -684,7 +724,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -704,7 +744,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -724,7 +764,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Subtraction
-                alu_op_out   = 3'b011;
+                alu_op_out   = 4'b0011;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -744,7 +784,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Subtraction
-                alu_op_out   = 3'b011;
+                alu_op_out   = 4'b0011;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -767,7 +807,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical AND
-                alu_op_out   = 3'b100;
+                alu_op_out   = 4'b0100;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -787,7 +827,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical AND
-                alu_op_out   = 3'b100;
+                alu_op_out   = 4'b0100;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -810,7 +850,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -830,7 +870,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -850,7 +890,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical AND
-                alu_op_out   = 3'b100;
+                alu_op_out   = 4'b0100;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -870,7 +910,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical AND
-                alu_op_out   = 3'b100;
+                alu_op_out   = 4'b0100;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -893,7 +933,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical OR
-                alu_op_out   = 3'b101;
+                alu_op_out   = 4'b0101;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -913,7 +953,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical OR
-                alu_op_out   = 3'b101;
+                alu_op_out   = 4'b0101;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -936,7 +976,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -956,7 +996,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -976,7 +1016,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical OR
-                alu_op_out   = 3'b101;
+                alu_op_out   = 4'b0101;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -996,7 +1036,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical OR
-                alu_op_out   = 3'b101;
+                alu_op_out   = 4'b0101;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1019,7 +1059,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical XOR
-                alu_op_out   = 3'b110;
+                alu_op_out   = 4'b0110;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1039,7 +1079,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical XOR
-                alu_op_out   = 3'b110;
+                alu_op_out   = 4'b0110;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1062,7 +1102,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1082,7 +1122,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 3'b001;
+                alu_op_out   = 4'b0001;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1102,7 +1142,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical XOR
-                alu_op_out   = 3'b110;
+                alu_op_out   = 4'b0110;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1122,13 +1162,512 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical XOR
-                alu_op_out   = 3'b110;
+                alu_op_out   = 4'b0110;
 
                 //Dont write or drive
                 we_out       = 0;
                 drive_out    = 0;
             end
 
+            //LSL_IMM sequence
+            //-----
+
+            //Add the incoming data from the operand that the PC is pointing to
+            S_LSL_IMM_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Logical Shift Left
+                alu_op_out   = 4'b0111;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_LSL_IMM_1: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Logical Shift Left
+                alu_op_out   = 4'b0111;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //LSL_DIR sequence
+            //-----
+
+            //Pass incoming data from memory to the main buss
+            S_LSL_DIR_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = 4'b0001;
+
+                //Dont write
+                we_out       = 0;
+            end
+
+            //Latch data to M
+            S_LSL_DIR_1: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 1;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = 4'b0001;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Set addr out to M and prep to add incoming data
+            S_LSL_DIR_2: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Logical Shift Left
+                alu_op_out   = 4'b0111;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_LSL_DIR_3: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Logical Shift Left
+                alu_op_out   = 4'b0111;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //LSR_IMM sequence
+            //-----
+
+            //Add the incoming data from the operand that the PC is pointing to
+            S_LSR_IMM_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Logical Shift Right
+                alu_op_out   = 4'b1000;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_LSR_IMM_1: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Logical Shift Right
+                alu_op_out   = 4'b1000;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //LSR_DIR sequence
+            //-----
+
+            //Pass incoming data from memory to the main buss
+            S_LSR_DIR_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = 4'b0001;
+
+                //Dont write
+                we_out       = 0;
+            end
+
+            //Latch data to M
+            S_LSR_DIR_1: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 1;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = 4'b0001;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Set addr out to M and prep to add incoming data
+            S_LSR_DIR_2: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Logical Shift Right
+                alu_op_out   = 4'b1000;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_LSR_DIR_3: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Logical Shift Right
+                alu_op_out   = 4'b1000;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //ASL_IMM sequence
+            //-----
+
+            //Add the incoming data from the operand that the PC is pointing to
+            S_ASL_IMM_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Arithmetic Shift Left
+                alu_op_out   = 4'b1001;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_ASL_IMM_1: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Arithmetic Shift Left
+                alu_op_out   = 4'b1001;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //ASL_DIR sequence
+            //-----
+
+            //Pass incoming data from memory to the main buss
+            S_ASL_DIR_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = 4'b0001;
+
+                //Dont write
+                we_out       = 0;
+            end
+
+            //Latch data to M
+            S_ASL_DIR_1: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 1;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = 4'b0001;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Set addr out to M and prep to add incoming data
+            S_ASL_DIR_2: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Arithmetic Shift Left
+                alu_op_out   = 4'b1001;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_ASL_DIR_3: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Arithmetic Shift Left
+                alu_op_out   = 4'b1001;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //ASR_IMM sequence
+            //-----
+
+            //Add the incoming data from the operand that the PC is pointing to
+            S_ASR_IMM_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Arithmetic Shift Right
+                alu_op_out   = 4'b1010;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_ASR_IMM_1: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Arithmetic Shift Right
+                alu_op_out   = 4'b1010;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //ASR_DIR sequence
+            //-----
+
+            //Pass incoming data from memory to the main buss
+            S_ASR_DIR_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = 4'b0001;
+
+                //Dont write
+                we_out       = 0;
+            end
+
+            //Latch data to M
+            S_ASR_DIR_1: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 1;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = 4'b0001;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Set addr out to M and prep to add incoming data
+            S_ASR_DIR_2: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Arithmetic Shift Right
+                alu_op_out   = 4'b1010;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_ASR_DIR_3: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Arithmetic Shift Right
+                alu_op_out   = 4'b1010;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
         endcase
     end
 
@@ -1195,6 +1734,33 @@ module minibyte_cu(
 
                     //IR_XOR_DIR (logical XOR direct value with A)
                     IR_XOR_DIR: next_state = S_XOR_DIR_0;
+
+                    //IR_LSL_IMM (logical left shift immediate value with A)
+                    IR_LSL_IMM: next_state = S_LSL_IMM_0;
+
+                    //IR_LSL_DIR (logical left shift direct value with A)
+                    IR_LSL_DIR: next_state = S_LSL_DIR_0;
+
+                    //IR_LSR_IMM (logical right shift immediate value with A)
+                    IR_LSR_IMM: next_state = S_LSR_IMM_0;
+
+                    //IR_LSR_DIR (logical right shift direct value with A)
+                    IR_LSR_DIR: next_state = S_LSR_DIR_0;
+
+                    //IR_ASL_IMM (arithmetic left shift immediate value with A)
+                    IR_ASL_IMM: next_state = S_ASL_IMM_0;
+
+                    //IR_ASL_DIR (arithmetic left shift direct value with A)
+                    IR_ASL_DIR: next_state = S_ASL_DIR_0;
+
+                    //IR_ASR_IMM (arithmetic right shift immediate value with A)
+                    IR_ASR_IMM: next_state = S_ASR_IMM_0;
+
+                    //IR_ASR_DIR (arithmetic right shift direct value with A)
+                    IR_ASR_DIR: next_state = S_ASR_DIR_0;
+
+                    //Invalid IR, goto fetch_0
+                    //default: next_state = S_FETCH_0;
 
                 endcase
             end
@@ -1272,6 +1838,46 @@ module minibyte_cu(
             S_XOR_DIR_1: next_state = S_XOR_DIR_2;
             S_XOR_DIR_2: next_state = S_XOR_DIR_3;
             S_XOR_DIR_3: next_state = S_PC_INC_0;
+
+            //LSL_IMM sequence
+            S_LSL_IMM_0: next_state = S_LSL_IMM_1;
+            S_LSL_IMM_1: next_state = S_PC_INC_0;
+
+            //LSL_DIR sequence
+            S_LSL_DIR_0: next_state = S_LSL_DIR_1;
+            S_LSL_DIR_1: next_state = S_LSL_DIR_2;
+            S_LSL_DIR_2: next_state = S_LSL_DIR_3;
+            S_LSL_DIR_3: next_state = S_PC_INC_0;
+
+            //LSR_IMM sequence
+            S_LSR_IMM_0: next_state = S_LSR_IMM_1;
+            S_LSR_IMM_1: next_state = S_PC_INC_0;
+
+            //LSR_DIR sequence
+            S_LSR_DIR_0: next_state = S_LSR_DIR_1;
+            S_LSR_DIR_1: next_state = S_LSR_DIR_2;
+            S_LSR_DIR_2: next_state = S_LSR_DIR_3;
+            S_LSR_DIR_3: next_state = S_PC_INC_0;
+
+            //ASL_IMM sequence
+            S_ASL_IMM_0: next_state = S_ASL_IMM_1;
+            S_ASL_IMM_1: next_state = S_PC_INC_0;
+
+            //ASL_DIR sequence
+            S_ASL_DIR_0: next_state = S_ASL_DIR_1;
+            S_ASL_DIR_1: next_state = S_ASL_DIR_2;
+            S_ASL_DIR_2: next_state = S_ASL_DIR_3;
+            S_ASL_DIR_3: next_state = S_PC_INC_0;
+
+            //ASR_IMM sequence
+            S_ASR_IMM_0: next_state = S_ASR_IMM_1;
+            S_ASR_IMM_1: next_state = S_PC_INC_0;
+
+            //ASR_DIR sequence
+            S_ASR_DIR_0: next_state = S_ASR_DIR_1;
+            S_ASR_DIR_1: next_state = S_ASR_DIR_2;
+            S_ASR_DIR_2: next_state = S_ASR_DIR_3;
+            S_ASR_DIR_3: next_state = S_PC_INC_0;
 
             //Should never get here
             default:
