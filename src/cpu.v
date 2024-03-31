@@ -157,14 +157,14 @@ module minibyte_cpu (
     //--------------------------------
     minibyte_genmux_8x tm_debug_out_mux(
         //Mux Inputs
-        .a_in(normal_addr_out),        //0 -> Normal   output
-        .b_in(alu_a_buss),             //1 -> A        output
-        .c_in(m_addr_buss),            //2 -> M        output
-        .d_in(pc_addr_buss),           //3 -> PC       output
-        .e_in(ir_op_buss),             //4 -> IR       output
-        .f_in({5'h00,ctrl_alu_op}),    //5 -> ALU OP   output
-        .g_in(8'h7a),                  //6 -> CCR      output
-        .h_in(dft_cu_state),           //7 -> CU STATE output
+        .a_in(normal_addr_out),        //0 -> Normal        output
+        .b_in(alu_a_buss),             //1 -> A             output
+        .c_in({7'h0, alu_a_buss[7]}),  //2 -> A (UPPER BIT) output
+        .d_in(m_addr_buss),            //3 -> M             output
+        .e_in(pc_addr_buss),           //4 -> PC            output
+        .f_in(ir_op_buss),             //5 -> IR            output
+        .g_in(8'h7a),                  //6 -> CCR           output
+        .h_in(dft_cu_state),           //7 -> CU STATE      output
 
         //Mux Select
         .sel_in(tm_control[2:0]),

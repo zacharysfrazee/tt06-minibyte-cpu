@@ -14,10 +14,10 @@ import random
 TM_OFF                = 0x00
 
 TM_DEBUG_OUT_A        = 0x01
-TM_DEBUG_OUT_M        = 0x02
-TM_DEBUG_OUT_PC       = 0x03
-TM_DEBUG_OUT_IR       = 0x04
-TM_DEBUG_OUT_ALU_OP   = 0x05
+TM_DEBUG_OUT_A_UPPER  = 0x02
+TM_DEBUG_OUT_M        = 0x03
+TM_DEBUG_OUT_PC       = 0x04
+TM_DEBUG_OUT_IR       = 0x05
 TM_DEBUG_OUT_CCR      = 0x06
 TM_DEBUG_OUT_CU_STATE = 0x07
 
@@ -53,7 +53,7 @@ CYCLES_ALU_IMM = 7 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM_0-
 
 #Test TM_DEBUG_OUT_A
 #-------------------------
-#@cocotb.test()
+@cocotb.test()
 async def test_tm_debug_out_a(dut):
     #Start
     dut._log.info("Start")
@@ -93,17 +93,26 @@ async def test_tm_debug_out_a(dut):
         #Set debug out
         dut.ui_in.value = TM_DEBUG_OUT_A
 
-        #Clock in the remaining cycles
-        #S_LDA_IMM_0->S_LDA_IMM_1->S_PC_INC_0->S_FETCH_0(current)
-        await ClockCycles(dut.clk, CYCLES_LDA_IMM - CYCLES_NOP)
+        #Clock in the remaining cycles -1
+        #S_LDA_IMM_0->S_LDA_IMM_1->S_PC_INC_0(current)
+        await ClockCycles(dut.clk, (CYCLES_LDA_IMM - CYCLES_NOP) - 1)
 
-        #Verify that A has the expected value
+        #Verify that A (lower 7) has the expected value
         assert dut.uo_out.value == (test_value & 0x7f)
 
+        #Set debug out
+        dut.ui_in.value = TM_DEBUG_OUT_A_UPPER
+
+        #Clock last cycle
+        #S_PC_INC_0->S_FETCH_0(current)
+        await ClockCycles(dut.clk, 1)
+
+        #Verify that A (upper bit) has the expected value
+        assert dut.uo_out.value == ((test_value & 0x80) >> 7)
 
 #Test NOP instruction
 #-------------------------
-#@cocotb.test()
+@cocotb.test()
 async def test_nop(dut):
     #Start
     dut._log.info("Start")
@@ -138,7 +147,7 @@ async def test_nop(dut):
 
 #Test LDA_IMM/STA_IMM instruction
 #-------------------------
-#@cocotb.test()
+@cocotb.test()
 async def test_lda_imm_sta_imm(dut):
     #Start
     dut._log.info("Start")
@@ -232,7 +241,7 @@ async def test_lda_imm_sta_imm(dut):
 
 #Test LDA_DIR instruction
 #-------------------------
-#@cocotb.test()
+@cocotb.test()
 async def test_lda_dir(dut):
     #Start
     dut._log.info("Start")
@@ -367,35 +376,35 @@ async def test_alu_imm(dut):
             "+",
             IR_ADD_IMM,
             CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs + rhs)
+            lambda lhs, rhs : (lhs + rhs) & 0xff
         ),
         (
             "SUB_IMM",
             "-",
             IR_SUB_IMM,
             CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs - rhs)
+            lambda lhs, rhs : (lhs - rhs) & 0xff
         ),
         (
             "AND_IMM",
             "&",
             IR_AND_IMM,
             CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs & rhs)
+            lambda lhs, rhs : (lhs & rhs) & 0xff
         ),
         (
             "OR_IMM",
             "|",
             IR_OR_IMM,
             CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs | rhs)
+            lambda lhs, rhs : (lhs | rhs) & 0xff
         ),
         (
             "XOR_IMM",
             "^",
             IR_XOR_IMM,
             CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs ^ rhs)
+            lambda lhs, rhs : (lhs ^ rhs) & 0xff
         ),
     ]
 
@@ -433,23 +442,36 @@ async def test_alu_imm(dut):
             #Set the data buss to the test_value to be loaded
             dut.uio_in.value = rhs_test_val
 
-            #Clock in the remaining cycles -1
+            #Clock in the remaining cycles -2
             #S_<ALU>_DIR_0->S_<ALU>_DIR_1->S_<ALU>_DIR_2->S_<ALU>_DIR_3->S_PC_INC_0(current)
-            await ClockCycles(dut.clk, (alu_cycles - CYCLES_NOP ) - 1)
+            await ClockCycles(dut.clk, (alu_cycles - CYCLES_NOP ) - 2)
 
             #Set debug out
             dut.ui_in.value = TM_DEBUG_OUT_A
+
+            #Clock the second to last cycle
+            #S_PC_INC_0->S_FETCH_0(current)
+            await ClockCycles(dut.clk, 1)
+
+            #Set debug out (upper bit)
+            dut.ui_in.value = TM_DEBUG_OUT_A_UPPER
+
+            #Save lower 7 a bits
+            a_data = dut.uo_out.value & 0x7f
 
             #Clock the last cycle
             #S_PC_INC_0->S_FETCH_0(current)
             await ClockCycles(dut.clk, 1)
 
+            #Save the upper a bit
+            a_data |= (dut.uo_out.value & 0x1) << 7
 
             #Log info
             dut._log.info(f"Desired: {lhs_test_val} {alu_symbol} {rhs_test_val} = {alu_test_func(lhs_test_val, rhs_test_val)}")
+            dut._log.info(f"Actual : {lhs_test_val} {alu_symbol} {rhs_test_val} = {a_data}")
 
             #Check the result
-            assert (dut.uo_out.value & 0x7f) == alu_test_func(lhs_test_val, rhs_test_val) & 0x7f
+            assert a_data == alu_test_func(lhs_test_val, rhs_test_val)
 
             #Disable debug out
             dut.ui_in.value = TM_OFF
