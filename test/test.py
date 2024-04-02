@@ -24,12 +24,10 @@ TM_DEBUG_OUT_CU_STATE = 0x07
 #IR Opcodes
 #-------------------------
 IR_NOP     = 0x00
-
 IR_LDA_IMM = 0x01
 IR_LDA_DIR = 0x02
 IR_STA_IMM = 0x03
 IR_STA_DIR = 0x04
-
 IR_ADD_IMM = 0x05
 IR_ADD_DIR = 0x06
 IR_SUB_IMM = 0x07
@@ -48,6 +46,10 @@ IR_ASL_IMM = 0x13
 IR_ASL_DIR = 0x14
 IR_ASR_IMM = 0x15
 IR_ASR_DIR = 0x16
+IR_RSL_IMM = 0x17
+IR_RSL_DIR = 0x18
+IR_RSR_IMM = 0x19
+IR_RSR_DIR = 0x1A
 
 
 #IR Cycle Counts
@@ -375,9 +377,9 @@ async def test_alu_imm(dut):
     #Clock through the reset state S_RESET_0->S_FETCH_0(current)
     await ClockCycles(dut.clk, 2)
 
-    #Test 500 Random Values
-    test_vals = [(random.randint(0, 255), random.randint(0, 255)) for _ in range(1000)] #1000 vals using large RHS
-    test_vals = [(random.randint(0, 255), random.randint(0, 7))   for _ in range(100)] #100 vals using small RHS (usefull for testing shifts and such)
+    #Test Random Values
+    test_vals  = [(random.randint(0, 255), random.randint(0, 255)) for _ in range(100)] #100 vals using large RHS
+    test_vals += [(random.randint(0, 255), random.randint(0, 7))   for _ in range(100)] #100 vals using small RHS (usefull for testing shifts and such)
 
     #8-bit twos comp functions
     def _2s_comp_to_pyint(x):
@@ -391,6 +393,18 @@ async def test_alu_imm(dut):
             return (-x ^ 0xff) + 1
         else:
             return x
+
+    #Terrible rotate function
+    def rotate(x, y):
+        while y != 0:
+            if y < 0:
+                y += 1
+                x = ((x >> 1) | ((x & 0x01) << 7)) & 0xff
+            elif y > 0:
+                y -= 1
+                x = ((x << 1) | ((x & 0x80) >> 7)) & 0xff
+
+        return x
 
     #Test suite
     test_suite =[
@@ -456,6 +470,20 @@ async def test_alu_imm(dut):
             IR_ASR_IMM,
             CYCLES_ALU_IMM,
             lambda lhs, rhs : pyint_to_2scomp(_2s_comp_to_pyint(lhs) >> rhs) & 0xff
+        ),
+        (
+            "RSL_IMM",
+            "<r<",
+            IR_RSL_IMM,
+            CYCLES_ALU_IMM,
+            lambda lhs, rhs : rotate(lhs, rhs)
+        ),
+        (
+            "RSR_IMM",
+            ">r>",
+            IR_RSR_IMM,
+            CYCLES_ALU_IMM,
+            lambda lhs, rhs : rotate(lhs, -rhs)
         ),
     ]
 

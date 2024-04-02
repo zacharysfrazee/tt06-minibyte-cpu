@@ -51,12 +51,10 @@ module minibyte_cu(
     //CPU IR opcodes
     //--------------------------
     parameter IR_NOP     = 8'h00;
-
     parameter IR_LDA_IMM = 8'h01;
     parameter IR_LDA_DIR = 8'h02;
     parameter IR_STA_IMM = 8'h03;
     parameter IR_STA_DIR = 8'h04;
-
     parameter IR_ADD_IMM = 8'h05;
     parameter IR_ADD_DIR = 8'h06;
     parameter IR_SUB_IMM = 8'h07;
@@ -75,110 +73,101 @@ module minibyte_cu(
     parameter IR_ASL_DIR = 8'h14;
     parameter IR_ASR_IMM = 8'h15;
     parameter IR_ASR_DIR = 8'h16;
+    parameter IR_RSL_IMM = 8'h17;
+    parameter IR_RSL_DIR = 8'h18;
+    parameter IR_RSR_IMM = 8'h19;
+    parameter IR_RSR_DIR = 8'h1A;
 
     //State machine opcodes
     //--------------------------
-    parameter S_RESET_0   = 0;
-
-    parameter S_PC_INC_0  = 99;
-
-    parameter S_FETCH_0   = 1;
-    parameter S_FETCH_1   = 2;
-    parameter S_FETCH_2   = 3;
-
-    parameter S_DECODE_0  = 4;
-
-    parameter S_LDA_IMM_0 = 5;
-    parameter S_LDA_IMM_1 = 6;
-
-    parameter S_LDA_DIR_0 = 7;
-    parameter S_LDA_DIR_1 = 8;
-    parameter S_LDA_DIR_2 = 9;
-    parameter S_LDA_DIR_3 = 10;
-
-    parameter S_STA_IMM_0 = 11;
-    parameter S_STA_IMM_1 = 12;
-    parameter S_STA_IMM_2 = 13;
-    parameter S_STA_IMM_3 = 14;
-
-    parameter S_STA_DIR_0 = 15;
-    parameter S_STA_DIR_1 = 16;
-    parameter S_STA_DIR_2 = 17;
-    parameter S_STA_DIR_3 = 18;
-    parameter S_STA_DIR_4 = 19;
-    parameter S_STA_DIR_5 = 20;
-
-    parameter S_ADD_IMM_0 = 21;
-    parameter S_ADD_IMM_1 = 22;
-
-    parameter S_ADD_DIR_0 = 23;
-    parameter S_ADD_DIR_1 = 24;
-    parameter S_ADD_DIR_2 = 25;
-    parameter S_ADD_DIR_3 = 26;
-
-    parameter S_SUB_IMM_0 = 27;
-    parameter S_SUB_IMM_1 = 28;
-
-    parameter S_SUB_DIR_0 = 29;
-    parameter S_SUB_DIR_1 = 30;
-    parameter S_SUB_DIR_2 = 31;
-    parameter S_SUB_DIR_3 = 32;
-
-    parameter S_AND_IMM_0 = 33;
-    parameter S_AND_IMM_1 = 34;
-
-    parameter S_AND_DIR_0 = 35;
-    parameter S_AND_DIR_1 = 36;
-    parameter S_AND_DIR_2 = 37;
-    parameter S_AND_DIR_3 = 38;
-
-    parameter S_OR_IMM_0  = 39;
-    parameter S_OR_IMM_1  = 40;
-
-    parameter S_OR_DIR_0  = 41;
-    parameter S_OR_DIR_1  = 42;
-    parameter S_OR_DIR_2  = 43;
-    parameter S_OR_DIR_3  = 44;
-
-    parameter S_XOR_IMM_0 = 45;
-    parameter S_XOR_IMM_1 = 46;
-
-    parameter S_XOR_DIR_0 = 47;
-    parameter S_XOR_DIR_1 = 48;
-    parameter S_XOR_DIR_2 = 49;
-    parameter S_XOR_DIR_3 = 50;
-
-    parameter S_LSL_IMM_0 = 51;
-    parameter S_LSL_IMM_1 = 52;
-
-    parameter S_LSL_DIR_0 = 53;
-    parameter S_LSL_DIR_1 = 54;
-    parameter S_LSL_DIR_2 = 55;
-    parameter S_LSL_DIR_3 = 56;
-
-    parameter S_LSR_IMM_0 = 57;
-    parameter S_LSR_IMM_1 = 58;
-
-    parameter S_LSR_DIR_0 = 59;
-    parameter S_LSR_DIR_1 = 60;
-    parameter S_LSR_DIR_2 = 61;
-    parameter S_LSR_DIR_3 = 62;
-
-    parameter S_ASL_IMM_0 = 63;
-    parameter S_ASL_IMM_1 = 64;
-
-    parameter S_ASL_DIR_0 = 65;
-    parameter S_ASL_DIR_1 = 66;
-    parameter S_ASL_DIR_2 = 67;
-    parameter S_ASL_DIR_3 = 68;
-
-    parameter S_ASR_IMM_0 = 69;
-    parameter S_ASR_IMM_1 = 70;
-
-    parameter S_ASR_DIR_0 = 71;
-    parameter S_ASR_DIR_1 = 72;
-    parameter S_ASR_DIR_2 = 73;
-    parameter S_ASR_DIR_3 = 74;
+    parameter S_RESET_0   = 8'h00;
+    parameter S_PC_INC_0  = 8'h01;
+    parameter S_FETCH_0   = 8'h02;
+    parameter S_FETCH_1   = 8'h03;
+    parameter S_FETCH_2   = 8'h04;
+    parameter S_DECODE_0  = 8'h05;
+    parameter S_LDA_IMM_0 = 8'h06;
+    parameter S_LDA_IMM_1 = 8'h07;
+    parameter S_LDA_DIR_0 = 8'h08;
+    parameter S_LDA_DIR_1 = 8'h09;
+    parameter S_LDA_DIR_2 = 8'h0A;
+    parameter S_LDA_DIR_3 = 8'h0B;
+    parameter S_STA_IMM_0 = 8'h0C;
+    parameter S_STA_IMM_1 = 8'h0D;
+    parameter S_STA_IMM_2 = 8'h0E;
+    parameter S_STA_IMM_3 = 8'h0F;
+    parameter S_STA_DIR_0 = 8'h10;
+    parameter S_STA_DIR_1 = 8'h11;
+    parameter S_STA_DIR_2 = 8'h12;
+    parameter S_STA_DIR_3 = 8'h13;
+    parameter S_STA_DIR_4 = 8'h14;
+    parameter S_STA_DIR_5 = 8'h15;
+    parameter S_ADD_IMM_0 = 8'h16;
+    parameter S_ADD_IMM_1 = 8'h17;
+    parameter S_ADD_DIR_0 = 8'h18;
+    parameter S_ADD_DIR_1 = 8'h19;
+    parameter S_ADD_DIR_2 = 8'h1A;
+    parameter S_ADD_DIR_3 = 8'h1B;
+    parameter S_SUB_IMM_0 = 8'h1C;
+    parameter S_SUB_IMM_1 = 8'h1D;
+    parameter S_SUB_DIR_0 = 8'h1E;
+    parameter S_SUB_DIR_1 = 8'h1F;
+    parameter S_SUB_DIR_2 = 8'h20;
+    parameter S_SUB_DIR_3 = 8'h21;
+    parameter S_AND_IMM_0 = 8'h22;
+    parameter S_AND_IMM_1 = 8'h23;
+    parameter S_AND_DIR_0 = 8'h24;
+    parameter S_AND_DIR_1 = 8'h25;
+    parameter S_AND_DIR_2 = 8'h26;
+    parameter S_AND_DIR_3 = 8'h27;
+    parameter S_OR_IMM_0  = 8'h28;
+    parameter S_OR_IMM_1  = 8'h29;
+    parameter S_OR_DIR_0  = 8'h2A;
+    parameter S_OR_DIR_1  = 8'h2B;
+    parameter S_OR_DIR_2  = 8'h2C;
+    parameter S_OR_DIR_3  = 8'h2D;
+    parameter S_XOR_IMM_0 = 8'h2E;
+    parameter S_XOR_IMM_1 = 8'h2F;
+    parameter S_XOR_DIR_0 = 8'h30;
+    parameter S_XOR_DIR_1 = 8'h31;
+    parameter S_XOR_DIR_2 = 8'h32;
+    parameter S_XOR_DIR_3 = 8'h33;
+    parameter S_LSL_IMM_0 = 8'h34;
+    parameter S_LSL_IMM_1 = 8'h35;
+    parameter S_LSL_DIR_0 = 8'h36;
+    parameter S_LSL_DIR_1 = 8'h37;
+    parameter S_LSL_DIR_2 = 8'h38;
+    parameter S_LSL_DIR_3 = 8'h39;
+    parameter S_LSR_IMM_0 = 8'h3A;
+    parameter S_LSR_IMM_1 = 8'h3B;
+    parameter S_LSR_DIR_0 = 8'h3C;
+    parameter S_LSR_DIR_1 = 8'h3D;
+    parameter S_LSR_DIR_2 = 8'h3E;
+    parameter S_LSR_DIR_3 = 8'h3F;
+    parameter S_ASL_IMM_0 = 8'h40;
+    parameter S_ASL_IMM_1 = 8'h41;
+    parameter S_ASL_DIR_0 = 8'h42;
+    parameter S_ASL_DIR_1 = 8'h43;
+    parameter S_ASL_DIR_2 = 8'h44;
+    parameter S_ASL_DIR_3 = 8'h45;
+    parameter S_ASR_IMM_0 = 8'h46;
+    parameter S_ASR_IMM_1 = 8'h47;
+    parameter S_ASR_DIR_0 = 8'h48;
+    parameter S_ASR_DIR_1 = 8'h49;
+    parameter S_ASR_DIR_2 = 8'h4A;
+    parameter S_ASR_DIR_3 = 8'h4B;
+    parameter S_RSL_IMM_0 = 8'h4C;
+    parameter S_RSL_IMM_1 = 8'h4D;
+    parameter S_RSL_DIR_0 = 8'h4E;
+    parameter S_RSL_DIR_1 = 8'h4F;
+    parameter S_RSL_DIR_2 = 8'h50;
+    parameter S_RSL_DIR_3 = 8'h51;
+    parameter S_RSR_IMM_0 = 8'h52;
+    parameter S_RSR_IMM_1 = 8'h53;
+    parameter S_RSR_DIR_0 = 8'h54;
+    parameter S_RSR_DIR_1 = 8'h55;
+    parameter S_RSR_DIR_2 = 8'h56;
+    parameter S_RSR_DIR_3 = 8'h57;
 
 
     //State memory block
@@ -261,7 +250,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -281,7 +270,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -301,7 +290,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -347,7 +336,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -367,7 +356,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -390,7 +379,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -410,7 +399,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -430,7 +419,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -450,7 +439,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -473,7 +462,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -493,7 +482,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -513,7 +502,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //A (A input) passthrough to main bus
-                alu_op_out   = 4'b0000;
+                alu_op_out   = ALU_PASSA;
 
                 //Set WE so that the receiving device is ready for us to drive data
                 we_out       = 1;
@@ -533,7 +522,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //A (A input) passthrough to main bus
-                alu_op_out   = 4'b0000;
+                alu_op_out   = ALU_PASSA;
 
                 //Drive out A data
                 we_out       = 1;
@@ -556,7 +545,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Addition
-                alu_op_out   = 4'b0010;
+                alu_op_out   = ALU_ADD;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -576,7 +565,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Addition
-                alu_op_out   = 4'b0010;
+                alu_op_out   = ALU_ADD;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -599,7 +588,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write
                 we_out       = 0;
@@ -618,7 +607,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -638,7 +627,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Addition
-                alu_op_out   = 4'b0010;
+                alu_op_out   = ALU_ADD;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -658,7 +647,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Addition
-                alu_op_out   = 4'b0010;
+                alu_op_out   = ALU_ADD;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -681,7 +670,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Subtraction
-                alu_op_out   = 4'b0011;
+                alu_op_out   = ALU_SUB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -701,7 +690,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Subtraction
-                alu_op_out   = 4'b0011;
+                alu_op_out   = ALU_SUB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -724,7 +713,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -744,7 +733,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -764,7 +753,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Subtraction
-                alu_op_out   = 4'b0011;
+                alu_op_out   = ALU_SUB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -784,7 +773,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Subtraction
-                alu_op_out   = 4'b0011;
+                alu_op_out   = ALU_SUB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -807,7 +796,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical AND
-                alu_op_out   = 4'b0100;
+                alu_op_out   = ALU_AND;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -827,7 +816,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical AND
-                alu_op_out   = 4'b0100;
+                alu_op_out   = ALU_AND;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -850,7 +839,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -870,7 +859,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -890,7 +879,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical AND
-                alu_op_out   = 4'b0100;
+                alu_op_out   = ALU_AND;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -910,7 +899,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical AND
-                alu_op_out   = 4'b0100;
+                alu_op_out   = ALU_AND;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -933,7 +922,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical OR
-                alu_op_out   = 4'b0101;
+                alu_op_out   = ALU_OR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -953,7 +942,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical OR
-                alu_op_out   = 4'b0101;
+                alu_op_out   = ALU_OR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -976,7 +965,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -996,7 +985,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1016,7 +1005,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical OR
-                alu_op_out   = 4'b0101;
+                alu_op_out   = ALU_OR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1036,7 +1025,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical OR
-                alu_op_out   = 4'b0101;
+                alu_op_out   = ALU_OR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1059,7 +1048,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical XOR
-                alu_op_out   = 4'b0110;
+                alu_op_out   = ALU_XOR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1079,7 +1068,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical XOR
-                alu_op_out   = 4'b0110;
+                alu_op_out   = ALU_XOR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1102,7 +1091,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1122,7 +1111,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1142,7 +1131,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical XOR
-                alu_op_out   = 4'b0110;
+                alu_op_out   = ALU_XOR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1162,7 +1151,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical XOR
-                alu_op_out   = 4'b0110;
+                alu_op_out   = ALU_XOR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1185,7 +1174,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical Shift Left
-                alu_op_out   = 4'b0111;
+                alu_op_out   = ALU_LSL;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1205,7 +1194,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical Shift Left
-                alu_op_out   = 4'b0111;
+                alu_op_out   = ALU_LSL;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1228,7 +1217,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write
                 we_out       = 0;
@@ -1247,7 +1236,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1267,7 +1256,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical Shift Left
-                alu_op_out   = 4'b0111;
+                alu_op_out   = ALU_LSL;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1287,7 +1276,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical Shift Left
-                alu_op_out   = 4'b0111;
+                alu_op_out   = ALU_LSL;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1310,7 +1299,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical Shift Right
-                alu_op_out   = 4'b1000;
+                alu_op_out   = ALU_LSR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1330,7 +1319,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Logical Shift Right
-                alu_op_out   = 4'b1000;
+                alu_op_out   = ALU_LSR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1353,7 +1342,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write
                 we_out       = 0;
@@ -1372,7 +1361,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1392,7 +1381,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical Shift Right
-                alu_op_out   = 4'b1000;
+                alu_op_out   = ALU_LSR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1412,7 +1401,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Logical Shift Right
-                alu_op_out   = 4'b1000;
+                alu_op_out   = ALU_LSR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1435,7 +1424,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Arithmetic Shift Left
-                alu_op_out   = 4'b1001;
+                alu_op_out   = ALU_ASL;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1455,7 +1444,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Arithmetic Shift Left
-                alu_op_out   = 4'b1001;
+                alu_op_out   = ALU_ASL;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1478,7 +1467,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write
                 we_out       = 0;
@@ -1497,7 +1486,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1517,7 +1506,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Arithmetic Shift Left
-                alu_op_out   = 4'b1001;
+                alu_op_out   = ALU_ASL;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1537,7 +1526,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Arithmetic Shift Left
-                alu_op_out   = 4'b1001;
+                alu_op_out   = ALU_ASL;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1560,7 +1549,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Arithmetic Shift Right
-                alu_op_out   = 4'b1010;
+                alu_op_out   = ALU_ASR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1580,7 +1569,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //ALU->Arithmetic Shift Right
-                alu_op_out   = 4'b1010;
+                alu_op_out   = ALU_ASR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1603,7 +1592,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write
                 we_out       = 0;
@@ -1622,7 +1611,7 @@ module minibyte_cu(
                 addr_mux_out = 0;
 
                 //B (mem input) passthrough to main bus
-                alu_op_out   = 4'b0001;
+                alu_op_out   = ALU_PASSB;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1642,7 +1631,7 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Arithmetic Shift Right
-                alu_op_out   = 4'b1010;
+                alu_op_out   = ALU_ASR;
 
                 //Dont write or drive
                 we_out       = 0;
@@ -1662,12 +1651,284 @@ module minibyte_cu(
                 addr_mux_out = 1;
 
                 //ALU->Arithmetic Shift Right
-                alu_op_out   = 4'b1010;
+                alu_op_out   = ALU_ASR;
 
                 //Dont write or drive
                 we_out       = 0;
                 drive_out    = 0;
             end
+
+            //RSL_IMM sequence
+            //-----
+
+            //Add the incoming data from the operand that the PC is pointing to
+            S_RSL_IMM_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Rotary Shift Left
+                alu_op_out   = ALU_RSL;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_RSL_IMM_1: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Rotary Shift Left
+                alu_op_out   = ALU_RSL;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //RSL_DIR sequence
+            //-----
+
+            //Pass incoming data from memory to the main buss
+            S_RSL_DIR_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = ALU_PASSB;
+
+                //Dont write
+                we_out       = 0;
+            end
+
+            //Latch data to M
+            S_RSL_DIR_1: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 1;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Set addr out to M and prep to add incoming data
+            S_RSL_DIR_2: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Rotary Shift Left
+                alu_op_out   = ALU_RSL;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_RSL_DIR_3: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Rotary Shift Left
+                alu_op_out   = ALU_RSL;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //RSR_IMM sequence
+            //-----
+
+            //Add the incoming data from the operand that the PC is pointing to
+            S_RSR_IMM_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Rotary Shift Right
+                alu_op_out   = ALU_RSR;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_RSR_IMM_1: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU->Rotary Shift Right
+                alu_op_out   = ALU_RSR;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //RSR_DIR sequence
+            //-----
+
+            //Pass incoming data from memory to the main buss
+            S_RSR_DIR_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = ALU_PASSB;
+
+                //Dont write
+                we_out       = 0;
+            end
+
+            //Latch data to M
+            S_RSR_DIR_1: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 1;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Set addr out to M and prep to add incoming data
+            S_RSR_DIR_2: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Rotary Shift Right
+                alu_op_out   = ALU_RSR;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to A and inc PC
+            S_RSR_DIR_3: begin
+                //Latch A
+                set_a_out    = 1;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //ALU->Rotary Shift Right
+                alu_op_out   = ALU_RSR;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Default (INVALID) sequence
+            //-----
+            default: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //ALU dont care
+                alu_op_out   = 0;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
         endcase
     end
 
@@ -1759,8 +2020,20 @@ module minibyte_cu(
                     //IR_ASR_DIR (arithmetic right shift direct value with A)
                     IR_ASR_DIR: next_state = S_ASR_DIR_0;
 
+                    //IR_RSL_IMM (rotary left shift immediate value with A)
+                    IR_RSL_IMM: next_state = S_RSL_IMM_0;
+
+                    //IR_RSL_DIR (rotary left shift direct value with A)
+                    IR_RSL_DIR: next_state = S_RSL_DIR_0;
+
+                    //IR_RSR_IMM (rotary right shift immediate value with A)
+                    IR_RSR_IMM: next_state = S_RSR_IMM_0;
+
+                    //IR_RSR_DIR (rotary right shift direct value with A)
+                    IR_RSR_DIR: next_state = S_RSR_DIR_0;
+
                     //Invalid IR, goto fetch_0
-                    //default: next_state = S_FETCH_0;
+                    default: next_state = S_FETCH_0;
 
                 endcase
             end
@@ -1878,6 +2151,26 @@ module minibyte_cu(
             S_ASR_DIR_1: next_state = S_ASR_DIR_2;
             S_ASR_DIR_2: next_state = S_ASR_DIR_3;
             S_ASR_DIR_3: next_state = S_PC_INC_0;
+
+            //RSL_IMM sequence
+            S_RSL_IMM_0: next_state = S_RSL_IMM_1;
+            S_RSL_IMM_1: next_state = S_PC_INC_0;
+
+            //RSL_DIR sequence
+            S_RSL_DIR_0: next_state = S_RSL_DIR_1;
+            S_RSL_DIR_1: next_state = S_RSL_DIR_2;
+            S_RSL_DIR_2: next_state = S_RSL_DIR_3;
+            S_RSL_DIR_3: next_state = S_PC_INC_0;
+
+            //RSR_IMM sequence
+            S_RSR_IMM_0: next_state = S_RSR_IMM_1;
+            S_RSR_IMM_1: next_state = S_PC_INC_0;
+
+            //RSR_DIR sequence
+            S_RSR_DIR_0: next_state = S_RSR_DIR_1;
+            S_RSR_DIR_1: next_state = S_RSR_DIR_2;
+            S_RSR_DIR_2: next_state = S_RSR_DIR_3;
+            S_RSR_DIR_3: next_state = S_PC_INC_0;
 
             //Should never get here
             default:

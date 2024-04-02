@@ -18,8 +18,27 @@
 // LSL       | 0b0111  | Logical shift A left by B
 // LSR       | 0b1000  | Logical shift A right by B
 // ASL       | 0b1001  | Arithmetic shift A left by B
-// ASR       | 0b1002  | Arithmetic shift A right by B
+// ASR       | 0b1010  | Arithmetic shift A right by B
+// RSL       | 0b1011  | Rotatary shift A left by B
+// RSR       | 0b1100  | Rotatary shift A right by B
 //---------------------------------------------------------------------------------------------------------
+
+//--------------------------
+//Params
+//--------------------------
+parameter ALU_PASSA  = 4'b0000;
+parameter ALU_PASSB  = 4'b0001;
+parameter ALU_ADD    = 4'b0010;
+parameter ALU_SUB    = 4'b0011;
+parameter ALU_AND    = 4'b0100;
+parameter ALU_OR     = 4'b0101;
+parameter ALU_XOR    = 4'b0110;
+parameter ALU_LSL    = 4'b0111;
+parameter ALU_LSR    = 4'b1000;
+parameter ALU_ASL    = 4'b1001;
+parameter ALU_ASR    = 4'b1010;
+parameter ALU_RSL    = 4'b1011;
+parameter ALU_RSR    = 4'b1100;
 
 //--------------------------
 //ALU Module
@@ -46,59 +65,104 @@ module minibyte_alu (
 
             //A Passthrough
             //--------------
-            4'b0000:
+            ALU_PASSA:
                 res_out = a_in;
 
             //B Passthrough
             //--------------
-            4'b0001:
+            ALU_PASSB:
                 res_out = b_in;
 
             //Addition
             //--------------
-            4'b0010:
+            ALU_ADD:
                 res_out = a_in + b_in;
 
             //Subtraction
             //--------------
-            4'b0011:
+            ALU_SUB:
                 res_out = a_in - b_in;
 
             //Logical AND
             //--------------
-            4'b0100:
+            ALU_AND:
                 res_out = a_in & b_in;
 
             //Logical OR
             //--------------
-            4'b0101:
+            ALU_OR:
                 res_out = a_in | b_in;
 
             //Logical XOR
             //--------------
-            4'b0110:
+            ALU_XOR:
                 res_out = a_in ^ b_in;
 
             //Logical Shift Left
             //--------------
-            4'b0111:
+            ALU_LSL:
                 res_out = a_in << b_in;
 
             //Logical Shift Right
             //--------------
-            4'b1000:
+            ALU_LSR:
                 res_out = a_in >> b_in;
 
             //Arithmetic Shift Left
             //--------------
-            4'b1001:
+            ALU_ASL:
                 res_out = a_in <<< b_in;
 
             //Arithmetic Shift Right
             //--------------
-            4'b1010:
+            ALU_ASR:
                 res_out = a_in >>> b_in;
 
+            //Rotary Shift Left
+            //--------------
+            ALU_RSL:
+                case(b_in[2:0])
+                    //Hardcoded concatenations of all possible inputs
+                    3'b000:
+                        res_out = a_in;
+                    3'b001:
+                        res_out = {a_in[6:0], a_in[7]};
+                    3'b010:
+                        res_out = {a_in[5:0], a_in[7:6]};
+                    3'b011:
+                        res_out = {a_in[4:0], a_in[7:5]};
+                    3'b100:
+                        res_out = {a_in[3:0], a_in[7:4]};
+                    3'b101:
+                        res_out = {a_in[2:0], a_in[7:3]};
+                    3'b110:
+                        res_out = {a_in[1:0], a_in[7:2]};
+                    3'b111:
+                        res_out = {a_in[0], a_in[7:1]};
+                endcase
+
+            //Rotary Shift Right
+            //--------------
+            ALU_RSR:
+                case(b_in[2:0])
+                    //Hardcoded concatenations of all possible inputs
+                    3'b000:
+                        res_out = a_in;
+                    3'b001:
+                        res_out = {a_in[0], a_in[7:1]};
+                    3'b010:
+                        res_out = {a_in[1:0], a_in[7:2]};
+                    3'b011:
+                        res_out = {a_in[2:0], a_in[7:3]};
+                    3'b100:
+                        res_out = {a_in[3:0], a_in[7:4]};
+                    3'b101:
+                        res_out = {a_in[4:0], a_in[7:5]};
+                    3'b110:
+                        res_out = {a_in[5:0], a_in[7:6]};
+                    3'b111:
+                        res_out = {a_in[6:0], a_in[7]};
+                endcase
 
             //Default (SHOULD NEVER GET HERE)
             //--------------
