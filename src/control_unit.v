@@ -14,14 +14,14 @@ module minibyte_cu(
     input  wire [7:0] ir_op_buss_in,
 
     //ALU Flags Input
-    input  wire       alu_flag_z_in,
-    input  wire       alu_flag_n_in,
+    input  wire [1:0] ccr_flag_zn_in,
 
     //Control signal outputs
     output reg        set_a_out,
     output reg        set_m_out,
     output reg        set_pc_out,
     output reg        set_ir_out,
+    output reg        set_ccr_out,
     output reg        inc_pc_out,
 
     //Addr select signals
@@ -215,6 +215,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -238,6 +239,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 1;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -261,6 +263,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -281,6 +284,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 1;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -301,6 +305,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 1;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -324,6 +329,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -347,6 +353,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -367,6 +374,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -390,6 +398,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -410,6 +419,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -430,6 +440,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -442,7 +453,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A
             S_LDA_DIR_3: begin
                 //Latch A
                 set_a_out    = 1;
@@ -450,6 +461,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -473,6 +485,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -493,6 +506,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -513,6 +527,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -533,6 +548,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -556,6 +572,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -568,14 +585,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_ADD_IMM_1: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -599,6 +617,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -619,6 +638,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -639,6 +659,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -651,14 +672,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_ADD_DIR_3: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //M selected
                 addr_mux_out = 1;
@@ -682,6 +704,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -694,14 +717,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_SUB_IMM_1: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -725,6 +749,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -745,6 +770,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -765,6 +791,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -777,14 +804,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_SUB_DIR_3: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //M selected
                 addr_mux_out = 1;
@@ -808,6 +836,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -820,14 +849,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_AND_IMM_1: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -851,6 +881,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -871,6 +902,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -891,6 +923,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -903,14 +936,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_AND_DIR_3: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //M selected
                 addr_mux_out = 1;
@@ -934,6 +968,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -946,14 +981,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_OR_IMM_1: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -977,6 +1013,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -997,6 +1034,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1017,6 +1055,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1029,14 +1068,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_OR_DIR_3: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1060,6 +1100,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1072,14 +1113,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_XOR_IMM_1: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1103,6 +1145,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1123,6 +1166,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1143,6 +1187,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1155,14 +1200,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_XOR_DIR_3: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1186,6 +1232,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1198,14 +1245,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_LSL_IMM_1: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1229,6 +1277,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1249,6 +1298,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1269,6 +1319,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1281,14 +1332,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_LSL_DIR_3: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1312,6 +1364,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1324,14 +1377,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_LSR_IMM_1: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1355,6 +1409,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1375,6 +1430,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1395,6 +1451,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1407,14 +1464,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_LSR_DIR_3: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1438,6 +1496,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1450,14 +1509,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_ASL_IMM_1: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1481,6 +1541,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1501,6 +1562,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1521,6 +1583,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1533,14 +1596,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_ASL_DIR_3: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1564,6 +1628,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1576,14 +1641,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_ASR_IMM_1: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1607,6 +1673,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1627,6 +1694,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1647,6 +1715,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1659,14 +1728,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_ASR_DIR_3: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1690,6 +1760,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1702,14 +1773,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_RSL_IMM_1: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1733,6 +1805,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1753,6 +1826,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1773,6 +1847,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1785,14 +1860,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_RSL_DIR_3: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1816,6 +1892,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1828,14 +1905,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_RSR_IMM_1: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1859,6 +1937,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1879,6 +1958,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1899,6 +1979,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1911,14 +1992,15 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A/CCR and inc PC
             S_RSR_DIR_3: begin
-                //Latch A
+                //Latch A and CCR
                 set_a_out    = 1;
                 set_m_out    = 0;
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 1;
 
                 //M selected
                 addr_mux_out = 1;
@@ -1940,6 +2022,7 @@ module minibyte_cu(
                 set_pc_out   = 0;
                 inc_pc_out   = 0;
                 set_ir_out   = 0;
+                set_ccr_out  = 0;
 
                 //PC selected
                 addr_mux_out = 0;
@@ -1958,7 +2041,7 @@ module minibyte_cu(
 
     //Next state logic
     //--------------------------
-    always @ (curr_state, ir_op_buss_in, alu_flag_n_in, alu_flag_z_in) begin
+    always @ (curr_state, ir_op_buss_in, ccr_flag_zn_in) begin
         case(curr_state)
             //Reset sequence (skips PC increment on boot)
             S_RESET_0: next_state = S_FETCH_0;

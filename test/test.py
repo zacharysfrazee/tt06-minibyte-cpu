@@ -62,6 +62,117 @@ CYCLES_STA_IMM = 9 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IMM_0->S
 CYCLES_ALU_IMM = 7 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM_0->S_<ALU>_IMM_1->S_PC_INC_0
 
 
+#Test Utility Functions
+#-------------------------
+
+#8-bit twos comp functions
+def _2s_comp_to_pyint(x):
+    if x > 127:
+        return -((x ^ 0xff) + 1)
+    else:
+        return x
+
+def pyint_to_2scomp(x):
+    if x < 0:
+        return (-x ^ 0xff) + 1
+    else:
+        return x
+
+#Terrible rotate function
+def rotate(x, y):
+    while y != 0:
+        if y < 0:
+            y += 1
+            x = ((x >> 1) | ((x & 0x01) << 7)) & 0xff
+        elif y > 0:
+            y -= 1
+            x = ((x << 1) | ((x & 0x80) >> 7)) & 0xff
+
+    return x
+
+#ALU Test Suite
+#-------------------------
+alu_test_suite =[
+    (
+        "ADD_IMM",
+        "+",
+        IR_ADD_IMM,
+        CYCLES_ALU_IMM,
+        lambda lhs, rhs : (lhs + rhs) & 0xff
+    ),
+    (
+        "SUB_IMM",
+        "-",
+        IR_SUB_IMM,
+        CYCLES_ALU_IMM,
+        lambda lhs, rhs : (lhs - rhs) & 0xff
+    ),
+    (
+        "AND_IMM",
+        "&",
+        IR_AND_IMM,
+        CYCLES_ALU_IMM,
+        lambda lhs, rhs : (lhs & rhs) & 0xff
+    ),
+    (
+        "OR_IMM",
+        "|",
+        IR_OR_IMM,
+        CYCLES_ALU_IMM,
+        lambda lhs, rhs : (lhs | rhs) & 0xff
+    ),
+    (
+        "XOR_IMM",
+        "^",
+        IR_XOR_IMM,
+        CYCLES_ALU_IMM,
+        lambda lhs, rhs : (lhs ^ rhs) & 0xff
+    ),
+    (
+        "LSL_IMM",
+        "<<",
+        IR_LSL_IMM,
+        CYCLES_ALU_IMM,
+        lambda lhs, rhs : (lhs << rhs) & 0xff
+    ),
+    (
+        "LSR_IMM",
+        ">>",
+        IR_LSR_IMM,
+        CYCLES_ALU_IMM,
+        lambda lhs, rhs : (lhs >> rhs) & 0xff
+    ),
+    (
+        "ASL_IMM",
+        "<<<",
+        IR_ASL_IMM,
+        CYCLES_ALU_IMM,
+        lambda lhs, rhs : pyint_to_2scomp(_2s_comp_to_pyint(lhs) << rhs) & 0xff
+    ),
+    (
+        "ASR_IMM",
+        ">>>",
+        IR_ASR_IMM,
+        CYCLES_ALU_IMM,
+        lambda lhs, rhs : pyint_to_2scomp(_2s_comp_to_pyint(lhs) >> rhs) & 0xff
+    ),
+    (
+        "RSL_IMM",
+        "<r<",
+        IR_RSL_IMM,
+        CYCLES_ALU_IMM,
+        lambda lhs, rhs : rotate(lhs, rhs)
+    ),
+    (
+        "RSR_IMM",
+        ">r>",
+        IR_RSR_IMM,
+        CYCLES_ALU_IMM,
+        lambda lhs, rhs : rotate(lhs, -rhs)
+    ),
+]
+
+
 #Test TM_DEBUG_OUT_A
 #-------------------------
 @cocotb.test()
@@ -381,113 +492,8 @@ async def test_alu_imm(dut):
     test_vals  = [(random.randint(0, 255), random.randint(0, 255)) for _ in range(100)] #100 vals using large RHS
     test_vals += [(random.randint(0, 255), random.randint(0, 7))   for _ in range(100)] #100 vals using small RHS (usefull for testing shifts and such)
 
-    #8-bit twos comp functions
-    def _2s_comp_to_pyint(x):
-        if x > 127:
-            return -((x ^ 0xff) + 1)
-        else:
-            return x
-
-    def pyint_to_2scomp(x):
-        if x < 0:
-            return (-x ^ 0xff) + 1
-        else:
-            return x
-
-    #Terrible rotate function
-    def rotate(x, y):
-        while y != 0:
-            if y < 0:
-                y += 1
-                x = ((x >> 1) | ((x & 0x01) << 7)) & 0xff
-            elif y > 0:
-                y -= 1
-                x = ((x << 1) | ((x & 0x80) >> 7)) & 0xff
-
-        return x
-
-    #Test suite
-    test_suite =[
-        (
-            "ADD_IMM",
-            "+",
-            IR_ADD_IMM,
-            CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs + rhs) & 0xff
-        ),
-        (
-            "SUB_IMM",
-            "-",
-            IR_SUB_IMM,
-            CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs - rhs) & 0xff
-        ),
-        (
-            "AND_IMM",
-            "&",
-            IR_AND_IMM,
-            CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs & rhs) & 0xff
-        ),
-        (
-            "OR_IMM",
-            "|",
-            IR_OR_IMM,
-            CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs | rhs) & 0xff
-        ),
-        (
-            "XOR_IMM",
-            "^",
-            IR_XOR_IMM,
-            CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs ^ rhs) & 0xff
-        ),
-        (
-            "LSL_IMM",
-            "<<",
-            IR_LSL_IMM,
-            CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs << rhs) & 0xff
-        ),
-        (
-            "LSR_IMM",
-            ">>",
-            IR_LSR_IMM,
-            CYCLES_ALU_IMM,
-            lambda lhs, rhs : (lhs >> rhs) & 0xff
-        ),
-        (
-            "ASL_IMM",
-            "<<<",
-            IR_ASL_IMM,
-            CYCLES_ALU_IMM,
-            lambda lhs, rhs : pyint_to_2scomp(_2s_comp_to_pyint(lhs) << rhs) & 0xff
-        ),
-        (
-            "ASR_IMM",
-            ">>>",
-            IR_ASR_IMM,
-            CYCLES_ALU_IMM,
-            lambda lhs, rhs : pyint_to_2scomp(_2s_comp_to_pyint(lhs) >> rhs) & 0xff
-        ),
-        (
-            "RSL_IMM",
-            "<r<",
-            IR_RSL_IMM,
-            CYCLES_ALU_IMM,
-            lambda lhs, rhs : rotate(lhs, rhs)
-        ),
-        (
-            "RSR_IMM",
-            ">r>",
-            IR_RSR_IMM,
-            CYCLES_ALU_IMM,
-            lambda lhs, rhs : rotate(lhs, -rhs)
-        ),
-    ]
-
-    for alu_ir_name, alu_symbol, alu_ir, alu_cycles, alu_test_func in test_suite:
+    #Main loop
+    for alu_ir_name, alu_symbol, alu_ir, alu_cycles, alu_test_func in alu_test_suite:
         for (lhs_test_val, rhs_test_val) in test_vals:
             #Load the LHS value to A
             #---------
@@ -551,6 +557,102 @@ async def test_alu_imm(dut):
 
             #Check the result
             assert a_data == alu_test_func(lhs_test_val, rhs_test_val)
+
+            #Disable debug out
+            dut.ui_in.value = TM_OFF
+
+
+#Test <ALU>_IMM (CCR)
+#-------------------------
+@cocotb.test()
+async def test_alu_imm_ccr(dut):
+    #Start
+    dut._log.info("Start")
+
+    #Setup Clock
+    clock = Clock(dut.clk, 10, units="us")
+    cocotb.start_soon(clock.start())
+
+    #Reset
+    dut._log.info("Reset")
+    dut.ena.value    = 1
+    dut.ui_in.value  = TM_OFF
+    dut.uio_in.value = 0
+    dut.rst_n.value  = 0
+    await ClockCycles(dut.clk, 10)
+    dut.rst_n.value  = 1
+
+    #Clock through the reset state S_RESET_0->S_FETCH_0(current)
+    await ClockCycles(dut.clk, 2)
+
+    #Test Random Values
+    test_vals  = [(random.randint(0, 255), random.randint(0, 255)) for _ in range(100)] #100 vals using large RHS
+    test_vals += [(random.randint(0, 255), random.randint(0, 7))   for _ in range(100)] #100 vals using small RHS (usefull for testing shifts and such)
+
+    #Main loop
+    for alu_ir_name, alu_symbol, alu_ir, alu_cycles, alu_test_func in alu_test_suite:
+        for (lhs_test_val, rhs_test_val) in test_vals:
+            #Load the LHS value to A
+            #---------
+
+            #Set data input buss to a LDA_IMM
+            dut._log.info("IR_LDA_IMM")
+            dut.uio_in.value = IR_LDA_IMM
+
+            #Clock in the first half of the instruction
+            #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_LDA_IMM_0(current)
+            await ClockCycles(dut.clk, CYCLES_NOP)
+
+            #Set the data buss to the test_value to be loaded
+            dut.uio_in.value = lhs_test_val
+
+            #Clock in the remaining cycles
+            #S_LDA_IMM_0->S_LDA_IMM_1->S_PC_INC_0->S_FETCH_0(current)
+            await ClockCycles(dut.clk, CYCLES_LDA_IMM - CYCLES_NOP)
+
+            #Add the RHS value to A
+            #---------
+
+            #Set data input buss to a LDA_IMM
+            dut._log.info(f"ALU_IR_OP: {alu_ir_name}")
+            dut.uio_in.value = alu_ir
+
+            #Clock in the first half of the instruction
+            #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_DIR_0(current)
+            await ClockCycles(dut.clk, CYCLES_NOP)
+
+            #Set the data buss to the test_value to be loaded
+            dut.uio_in.value = rhs_test_val
+
+            #Clock in the remaining cycles -2
+            #S_<ALU>_DIR_0->S_<ALU>_DIR_1->S_<ALU>_DIR_2->S_<ALU>_DIR_3->S_PC_INC_0->S_FETCH_0(current)
+            await ClockCycles(dut.clk, (alu_cycles - CYCLES_NOP ) - 1)
+
+            #Set debug out (CCR)
+            dut.ui_in.value = TM_DEBUG_OUT_CCR
+
+            #Clock the last cycle
+            #S_PC_INC_0->S_FETCH_0(current)
+            await ClockCycles(dut.clk, 1)
+
+            #Grab the flags
+            neg_flag  = bool(dut.uo_out.value & 0x1)
+            zero_flag = bool(dut.uo_out.value & 0x2)
+
+            #Expected ALU output
+            expect_alu_out = alu_test_func(lhs_test_val, rhs_test_val)
+
+            #Expected flags
+            exp_neg_flag  = True if expect_alu_out  > 127 else False
+            exp_zero_flag = True if expect_alu_out == 0   else False
+
+            #Log info
+            dut._log.info(f"Expected Output: {lhs_test_val} {alu_symbol} {rhs_test_val} = {alu_test_func(lhs_test_val, rhs_test_val)}")
+            dut._log.info(f"Flags          : Z={zero_flag} N={neg_flag}")
+
+            #Check the result
+            assert neg_flag==exp_neg_flag
+            assert zero_flag==exp_zero_flag
 
             #Disable debug out
             dut.ui_in.value = TM_OFF

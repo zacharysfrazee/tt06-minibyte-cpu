@@ -51,8 +51,7 @@ module minibyte_alu (
 
     //ALU Outputs
     output reg signed [7:0] res_out,
-    output reg              flag_z_out,
-    output reg              flag_n_out
+    output reg        [1:0] flags_zn_out
 );
 
     //Main Procedural Block
@@ -174,13 +173,13 @@ module minibyte_alu (
         //Assign Zero flag
         //---------------------
         if(res_out == 0)
-            flag_z_out = 1;
+            flags_zn_out[1] = 1;
         else
-            flag_z_out = 0;
+            flags_zn_out[1] = 0;
 
         //Assign Negative flag
         //---------------------
-        flag_n_out = res_out[7];
+        flags_zn_out[0] = res_out[7];
 
     end
 

@@ -55,6 +55,7 @@ module minibyte_cpu (
     wire ctrl_set_m;
     wire ctrl_set_pc;
     wire ctrl_set_ir;
+    wire ctrl_set_ccr;
 
     //Inc register signals
     wire ctrl_inc_pc;
@@ -74,8 +75,8 @@ module minibyte_cpu (
 
     //Branch Signals
     //--------------------------------
-    wire br_zero;
-    wire br_negative;
+    wire [1:0] flags_zn_buss;
+    wire [1:0] ccr_zn_buss;
 
 
     //A Register
@@ -123,6 +124,7 @@ module minibyte_cpu (
         .reg_out(pc_addr_buss)
     );
 
+
     //IR Register
     //--------------------------------
     minibyte_genreg reg_ir(
@@ -135,6 +137,21 @@ module minibyte_cpu (
 
         //Register Outputs
         .reg_out(ir_op_buss)
+    );
+
+
+    //CCR Register
+    //--------------------------------
+    minibyte_ccrreg reg_ccr(
+        //Basic Inputs
+        .clk_in(clk_in), .rst_in(rst_in),
+
+        //Register Inputs
+        .reg_in(flags_zn_buss),
+        .set_in(ctrl_set_ccr),
+
+        //Register Outputs
+        .reg_out(ccr_zn_buss)
     );
 
 
@@ -163,7 +180,7 @@ module minibyte_cpu (
         .d_in(m_addr_buss),            //3 -> M             output
         .e_in(pc_addr_buss),           //4 -> PC            output
         .f_in(ir_op_buss),             //5 -> IR            output
-        .g_in(8'h7a),                  //6 -> CCR           output
+        .g_in({6'h0,ccr_zn_buss}),     //6 -> CCR           output
         .h_in(dft_cu_state),           //7 -> CU STATE      output
 
         //Mux Select
@@ -172,6 +189,7 @@ module minibyte_cpu (
         //Mux Output
         .mux_out(addr_out)
     );
+
 
     //ALU
     //--------------------------------
@@ -182,8 +200,7 @@ module minibyte_cpu (
         .alu_op_in(ctrl_alu_op),
 
         .res_out(main_buss),
-        .flag_z_out(br_zero),
-        .flag_n_out(br_negative)
+        .flags_zn_out(flags_zn_buss)
     );
 
 
@@ -197,14 +214,14 @@ module minibyte_cpu (
         .ir_op_buss_in(ir_op_buss),
 
         //ALU Flags Input
-        .alu_flag_z_in(br_zero),
-        .alu_flag_n_in(br_negative),
+        .ccr_flag_zn_in(ccr_zn_buss),
 
         //Control signal outputs
         .set_a_out(ctrl_set_a),
         .set_m_out(ctrl_set_m),
         .set_pc_out(ctrl_set_pc),
         .set_ir_out(ctrl_set_ir),
+        .set_ccr_out(ctrl_set_ccr),
         .inc_pc_out(ctrl_inc_pc),
 
         //Addr select signals
