@@ -1868,6 +1868,7 @@ module minibyte_cu(
 
                 //Dont write
                 we_out       = 0;
+                drive_out    = 0;
             end
 
             //Latch data to M
