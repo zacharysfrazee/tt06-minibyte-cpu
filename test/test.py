@@ -60,6 +60,7 @@ CYCLES_LDA_DIR = 9 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_LDA_DIR_0->S
 CYCLES_STA_IMM = 9 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IMM_0->S_STA_IMM_1->S_STA_IMM_2->S_STA_IMM_3->S_PC_INC_0
 
 CYCLES_ALU_IMM = 7 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM_0->S_<ALU>_IMM_1->S_PC_INC_0
+CYCLES_ALU_DIR = 9 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_DIR_0->S_<ALU>_DIR_1->S_<ALU>_DIR_2->S_<ALU>_DIR_3->S_PC_INC_0
 
 
 #Test Utility Functions
@@ -168,6 +169,83 @@ alu_test_suite =[
         ">r>",
         IR_RSR_IMM,
         CYCLES_ALU_IMM,
+        lambda lhs, rhs : rotate(lhs, -rhs)
+    ),
+    (
+        "ADD_DIR",
+        "+",
+        IR_ADD_DIR,
+        CYCLES_ALU_DIR,
+        lambda lhs, rhs : (lhs + rhs) & 0xff
+    ),
+    (
+        "SUB_DIR",
+        "-",
+        IR_SUB_DIR,
+        CYCLES_ALU_DIR,
+        lambda lhs, rhs : (lhs - rhs) & 0xff
+    ),
+    (
+        "AND_DIR",
+        "&",
+        IR_AND_DIR,
+        CYCLES_ALU_DIR,
+        lambda lhs, rhs : (lhs & rhs) & 0xff
+    ),
+    (
+        "OR_DIR",
+        "|",
+        IR_OR_DIR,
+        CYCLES_ALU_DIR,
+        lambda lhs, rhs : (lhs | rhs) & 0xff
+    ),
+    (
+        "XOR_DIR",
+        "^",
+        IR_XOR_DIR,
+        CYCLES_ALU_DIR,
+        lambda lhs, rhs : (lhs ^ rhs) & 0xff
+    ),
+    (
+        "LSL_DIR",
+        "<<",
+        IR_LSL_DIR,
+        CYCLES_ALU_DIR,
+        lambda lhs, rhs : (lhs << rhs) & 0xff
+    ),
+    (
+        "LSR_DIR",
+        ">>",
+        IR_LSR_DIR,
+        CYCLES_ALU_DIR,
+        lambda lhs, rhs : (lhs >> rhs) & 0xff
+    ),
+    (
+        "ASL_DIR",
+        "<<<",
+        IR_ASL_DIR,
+        CYCLES_ALU_DIR,
+        lambda lhs, rhs : pyint_to_2scomp(_2s_comp_to_pyint(lhs) << rhs) & 0xff
+    ),
+    (
+        "ASR_DIR",
+        ">>>",
+        IR_ASR_DIR,
+        CYCLES_ALU_DIR,
+        lambda lhs, rhs : pyint_to_2scomp(_2s_comp_to_pyint(lhs) >> rhs) & 0xff
+    ),
+    (
+        "RSL_DIR",
+        "<r<",
+        IR_RSL_DIR,
+        CYCLES_ALU_DIR,
+        lambda lhs, rhs : rotate(lhs, rhs)
+    ),
+    (
+        "RSR_DIR",
+        ">r>",
+        IR_RSR_DIR,
+        CYCLES_ALU_DIR,
         lambda lhs, rhs : rotate(lhs, -rhs)
     ),
 ]
@@ -465,10 +543,10 @@ async def test_lda_dir(dut):
         await ClockCycles(dut.clk,1)
 
 
-#Test <ALU>_IMM instruction
+#Test <ALU>_IMM/<ALU>_DIR instructions
 #-------------------------
 @cocotb.test()
-async def test_alu_imm(dut):
+async def test_alu_imm_dir(dut):
     #Start
     dut._log.info("Start")
 
@@ -521,15 +599,35 @@ async def test_alu_imm(dut):
             dut.uio_in.value = alu_ir
 
             #Clock in the first half of the instruction
-            #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_DIR_0(current)
+            #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM/DIR_0(current)
             await ClockCycles(dut.clk, CYCLES_NOP)
 
+            #Direct ALU OP TEST
+            #---------
+            if alu_cycles==CYCLES_ALU_DIR:
+                #test addr
+                test_addr = (rhs_test_val^0xff) & 0x7f
+
+                #Ser addr
+                dut.uio_in.value = test_addr
+
+                #Clock 2 cycles
+                #S_<ALU>_IMM/DIR_0->S_<ALU>_DIR_1->S_<ALU>_DIR_2(current)
+                await ClockCycles(dut.clk, 2)
+
+                #Make sure test address is on the buss
+                assert dut.uo_out.value == test_addr
+
+            #Rest of ALU opp test
+            #---------
             #Set the data buss to the test_value to be loaded
             dut.uio_in.value = rhs_test_val
 
             #Clock in the remaining cycles -2
-            #S_<ALU>_DIR_0->S_<ALU>_DIR_1->S_<ALU>_DIR_2->S_<ALU>_DIR_3->S_PC_INC_0(current)
-            await ClockCycles(dut.clk, (alu_cycles - CYCLES_NOP ) - 2)
+            #S_<ALU>_IMM_0->S_<ALU>_IMM_1(current)
+            #or
+            #S_<ALU>_DIR_2->S_<ALU>_DIR_3(current)
+            await ClockCycles(dut.clk, (CYCLES_ALU_IMM - CYCLES_NOP) - 2)
 
             #Set debug out
             dut.ui_in.value = TM_DEBUG_OUT_A
@@ -565,7 +663,7 @@ async def test_alu_imm(dut):
 #Test <ALU>_IMM (CCR)
 #-------------------------
 @cocotb.test()
-async def test_alu_imm_ccr(dut):
+async def test_alu_ccr(dut):
     #Start
     dut._log.info("Start")
 
