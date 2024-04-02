@@ -169,6 +169,22 @@ module minibyte_cu(
     parameter S_RSR_DIR_2 = 8'h56;
     parameter S_RSR_DIR_3 = 8'h57;
 
+    //--------------------------
+    //ALU OPS
+    //--------------------------
+    parameter ALU_PASSA   = 4'b0000;
+    parameter ALU_PASSB   = 4'b0001;
+    parameter ALU_ADD     = 4'b0010;
+    parameter ALU_SUB     = 4'b0011;
+    parameter ALU_AND     = 4'b0100;
+    parameter ALU_OR      = 4'b0101;
+    parameter ALU_XOR     = 4'b0110;
+    parameter ALU_LSL     = 4'b0111;
+    parameter ALU_LSR     = 4'b1000;
+    parameter ALU_ASL     = 4'b1001;
+    parameter ALU_ASR     = 4'b1010;
+    parameter ALU_RSL     = 4'b1011;
+    parameter ALU_RSR     = 4'b1100;
 
     //State memory block
     //--------------------------
@@ -592,6 +608,7 @@ module minibyte_cu(
 
                 //Dont write
                 we_out       = 0;
+                drive_out    = 0;
             end
 
             //Latch data to M
@@ -1221,6 +1238,7 @@ module minibyte_cu(
 
                 //Dont write
                 we_out       = 0;
+                drive_out    = 0;
             end
 
             //Latch data to M
@@ -1346,6 +1364,7 @@ module minibyte_cu(
 
                 //Dont write
                 we_out       = 0;
+                drive_out    = 0;
             end
 
             //Latch data to M
@@ -1471,6 +1490,7 @@ module minibyte_cu(
 
                 //Dont write
                 we_out       = 0;
+                drive_out    = 0;
             end
 
             //Latch data to M
@@ -1596,6 +1616,7 @@ module minibyte_cu(
 
                 //Dont write
                 we_out       = 0;
+                drive_out    = 0;
             end
 
             //Latch data to M
@@ -1721,6 +1742,7 @@ module minibyte_cu(
 
                 //Dont write
                 we_out       = 0;
+                drive_out    = 0;
             end
 
             //Latch data to M
