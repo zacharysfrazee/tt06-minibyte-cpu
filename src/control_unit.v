@@ -366,7 +366,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A and inc PC
+            //Latch data to A
             S_LDA_IMM_1: begin
                 //Latch A
                 set_a_out    = 1;
@@ -498,7 +498,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to M and inc PC
+            //Latch data to M
             S_STA_IMM_1: begin
                 //Latch M
                 set_a_out    = 0;
@@ -585,7 +585,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_ADD_IMM_1: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -672,7 +672,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_ADD_DIR_3: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -717,7 +717,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_SUB_IMM_1: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -804,7 +804,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_SUB_DIR_3: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -849,7 +849,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_AND_IMM_1: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -936,7 +936,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_AND_DIR_3: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -981,7 +981,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_OR_IMM_1: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1068,7 +1068,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_OR_DIR_3: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1113,7 +1113,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_XOR_IMM_1: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1200,7 +1200,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_XOR_DIR_3: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1245,7 +1245,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_LSL_IMM_1: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1332,7 +1332,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_LSL_DIR_3: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1377,7 +1377,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_LSR_IMM_1: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1464,7 +1464,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_LSR_DIR_3: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1509,7 +1509,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_ASL_IMM_1: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1596,7 +1596,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_ASL_DIR_3: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1641,7 +1641,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_ASR_IMM_1: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1728,7 +1728,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_ASR_DIR_3: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1773,7 +1773,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_RSL_IMM_1: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1860,7 +1860,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_RSL_DIR_3: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1905,7 +1905,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_RSR_IMM_1: begin
                 //Latch A and CCR
                 set_a_out    = 1;
@@ -1992,7 +1992,7 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to A/CCR and inc PC
+            //Latch data to A/CCR
             S_RSR_DIR_3: begin
                 //Latch A and CCR
                 set_a_out    = 1;
