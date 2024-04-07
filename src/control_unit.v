@@ -77,6 +77,8 @@ module minibyte_cu(
     parameter IR_RSL_DIR = 8'h18;
     parameter IR_RSR_IMM = 8'h19;
     parameter IR_RSR_DIR = 8'h1A;
+    parameter IR_JMP_IMM = 8'h1B;
+    parameter IR_JMP_DIR = 8'h1C;
 
     //State machine opcodes
     //--------------------------
@@ -168,6 +170,12 @@ module minibyte_cu(
     parameter S_RSR_DIR_1 = 8'h55;
     parameter S_RSR_DIR_2 = 8'h56;
     parameter S_RSR_DIR_3 = 8'h57;
+    parameter S_JMP_IMM_0 = 8'h58;
+    parameter S_JMP_IMM_1 = 8'h59;
+    parameter S_JMP_DIR_0 = 8'h5A;
+    parameter S_JMP_DIR_1 = 8'h5B;
+    parameter S_JMP_DIR_2 = 8'h5C;
+    parameter S_JMP_DIR_3 = 8'h5D;
 
     //--------------------------
     //ALU OPS
@@ -2143,6 +2151,138 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
+            //JMP_IMM sequence
+            //-----
+
+            //Pass incoming data from memory to the main buss
+            S_JMP_IMM_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to PC
+            S_JMP_IMM_1: begin
+                //Latch PC
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 1;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //JMP_DIR sequence
+            //-----
+
+            //Pass incoming data from memory to the main buss
+            S_JMP_DIR_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to M
+            S_JMP_DIR_1: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 1;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Set addr out to M
+            S_JMP_DIR_2: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to PC
+            S_JMP_DIR_3: begin
+                //Latch PC
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 1;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
             //Default (INVALID) sequence
             //-----
             default: begin
@@ -2267,6 +2407,13 @@ module minibyte_cu(
 
                     //IR_RSR_DIR (rotary right shift direct value with A)
                     IR_RSR_DIR: next_state = S_RSR_DIR_0;
+
+                    //IR_JMP_IMM (load immediate value to PC)
+                    IR_JMP_IMM: next_state = S_JMP_IMM_0;
+
+                    //IR_LDA_DIR (load direct value to PC)
+                    IR_JMP_DIR: next_state = S_JMP_DIR_0;
+
 
                     //Invalid IR, goto fetch_0
                     default: next_state = S_FETCH_0;
@@ -2407,6 +2554,16 @@ module minibyte_cu(
             S_RSR_DIR_1: next_state = S_RSR_DIR_2;
             S_RSR_DIR_2: next_state = S_RSR_DIR_3;
             S_RSR_DIR_3: next_state = S_PC_INC_0;
+
+            //JMP_IMM sequence
+            S_JMP_IMM_0: next_state = S_JMP_IMM_1;
+            S_JMP_IMM_1: next_state = S_FETCH_0;
+
+            //JMP_DIR sequence
+            S_JMP_DIR_0: next_state = S_JMP_DIR_1;
+            S_JMP_DIR_1: next_state = S_JMP_DIR_2;
+            S_JMP_DIR_2: next_state = S_JMP_DIR_3;
+            S_JMP_DIR_3: next_state = S_FETCH_0;
 
             //Should never get here
             default:

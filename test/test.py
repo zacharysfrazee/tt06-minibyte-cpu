@@ -50,7 +50,8 @@ IR_RSL_IMM = 0x17
 IR_RSL_DIR = 0x18
 IR_RSR_IMM = 0x19
 IR_RSR_DIR = 0x1A
-
+IR_JMP_IMM = 0x1B
+IR_JMP_DIR = 0x1C
 
 #IR Cycle Counts
 #-------------------------
@@ -63,6 +64,8 @@ CYCLES_STA_DIR = 11 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IMM_0->
 CYCLES_ALU_IMM = 7  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM_0->S_<ALU>_IMM_1->S_PC_INC_0
 CYCLES_ALU_DIR = 9  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_DIR_0->S_<ALU>_DIR_1->S_<ALU>_DIR_2->S_<ALU>_DIR_3->S_PC_INC_0
 
+CYCLES_JMP_IMM = 6  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0->S_JMP_IMM_1
+CYCLES_JMP_DIR = 8  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_DIR_0->S_JMP_DIR_1->S_JMP_DIR_2->S_JMP_DIR_3
 
 #Test Utility Functions
 #-------------------------
@@ -765,3 +768,110 @@ async def test_alu_ccr(dut):
 
             #Disable debug out
             dut.ui_in.value = TM_OFF
+
+
+#Test JMP_IMM
+#-------------------------
+@cocotb.test()
+async def test_jmp_imm(dut):
+    #Start
+    dut._log.info("Start")
+
+    #Setup Clock
+    clock = Clock(dut.clk, 10, units="us")
+    cocotb.start_soon(clock.start())
+
+    #Reset
+    dut._log.info("Reset")
+    dut.ena.value    = 1
+    dut.ui_in.value  = TM_OFF
+    dut.uio_in.value = 0
+    dut.rst_n.value  = 0
+    await ClockCycles(dut.clk, 10)
+    dut.rst_n.value  = 1
+
+    #Clock through the reset state S_RESET_0->S_FETCH_0(current)
+    await ClockCycles(dut.clk, 2)
+
+    #Test Values
+    TEST_VALUES = [0x22, 0x33, 0xAA, 0xBB]
+
+    #Main test loop
+    for test_value in TEST_VALUES:
+        #Set data input buss to a JMP_IMM
+        dut._log.info("IR_JMP_IMM")
+        dut.uio_in.value = IR_JMP_IMM
+
+        #Clock in the first half of the instruction
+        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
+        await ClockCycles(dut.clk, CYCLES_NOP)
+
+        #Set the data buss to the test_value to be loaded
+        dut.uio_in.value = test_value & 0x7f
+
+        #Clock in the remaining cycles
+        #S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
+        await ClockCycles(dut.clk, CYCLES_JMP_IMM - CYCLES_NOP)
+
+        #Verify that PC has the expected value
+        assert dut.uo_out.value == (test_value & 0x7f)
+
+
+#Test JMP_DIR
+#-------------------------
+@cocotb.test()
+async def test_jmp_dir(dut):
+    #Start
+    dut._log.info("Start")
+
+    #Setup Clock
+    clock = Clock(dut.clk, 10, units="us")
+    cocotb.start_soon(clock.start())
+
+    #Reset
+    dut._log.info("Reset")
+    dut.ena.value    = 1
+    dut.ui_in.value  = TM_OFF
+    dut.uio_in.value = 0
+    dut.rst_n.value  = 0
+    await ClockCycles(dut.clk, 10)
+    dut.rst_n.value  = 1
+
+    #Clock through the reset state S_RESET_0->S_FETCH_0(current)
+    await ClockCycles(dut.clk, 2)
+
+    #Test Values
+    TEST_VALUES = [0x44, 0x55, 0xDD, 0xEE]
+
+    #Main test loop
+    for test_value in TEST_VALUES:
+        #Test address
+        test_address = (test_value ^ 0x7f) & 0x7f
+
+        #Set data input buss to a JMP_DIR
+        dut._log.info("IR_JMP_DIR")
+        dut.uio_in.value = IR_JMP_DIR
+
+        #Clock in the first half of the instruction
+        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_DIR_0(current)
+        await ClockCycles(dut.clk, CYCLES_NOP)
+
+        #Set the data buss to the test_address to be loaded
+        dut.uio_in.value = test_address & 0x7f
+
+        #Clock in the remaining cycles -2
+        #S_JMP_DIR_0->S_JMP_DIR_1->S_JMP_DIR_2(current)
+        await ClockCycles(dut.clk, (CYCLES_JMP_DIR - CYCLES_NOP) - 2)
+
+        #Verify that M has the expected value
+        assert dut.uo_out.value == test_address
+
+        #Set the data buss to the test_value to be loaded
+        dut.uio_in.value = test_value & 0x7f
+
+        #Clock in the remaining cycles
+        #S_JMP_DIR_2->S_JMP_DIR_3->S_FETCH_0(current)
+        await ClockCycles(dut.clk, 2)
+
+        #Verify that PC has the expected value
+        assert dut.uo_out.value == test_value & 0x7f
