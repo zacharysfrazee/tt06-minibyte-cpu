@@ -561,6 +561,136 @@ module minibyte_cu(
                 drive_out    = 1;
             end
 
+            //STA_DIR sequence
+            //-----
+
+            //Pass incoming data from memory to the main buss
+            S_STA_DIR_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to M
+            S_STA_DIR_1: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 1;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+
+            //Fetch data located at this address
+            S_STA_DIR_2: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to M
+            S_STA_DIR_3: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 1;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Set address and WE, also prepare A data on the main buss
+            S_STA_DIR_4: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //A (A input) passthrough to main bus
+                alu_op_out   = ALU_PASSA;
+
+                //Set WE so that the receiving device is ready for us to drive data
+                we_out       = 1;
+                drive_out    = 0;
+            end
+
+            //Drive the data out
+            S_STA_DIR_5: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //A (A input) passthrough to main bus
+                alu_op_out   = ALU_PASSA;
+
+                //Drive out A data
+                we_out       = 1;
+                drive_out    = 1;
+            end
+
             //ADD_IMM sequence
             //-----
 

@@ -54,13 +54,14 @@ IR_RSR_DIR = 0x1A
 
 #IR Cycle Counts
 #-------------------------
-CYCLES_NOP     = 4 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0
-CYCLES_LDA_IMM = 7 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_LDA_IMM_0->S_LDA_IMM_1->S_PC_INC_0
-CYCLES_LDA_DIR = 9 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_LDA_DIR_0->S_LDA_DIR_1->S_LDA_DIR_2->S_LDA_DIR_3->S_PC_INC_0
-CYCLES_STA_IMM = 9 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IMM_0->S_STA_IMM_1->S_STA_IMM_2->S_STA_IMM_3->S_PC_INC_0
+CYCLES_NOP     = 4  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0
+CYCLES_LDA_IMM = 7  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_LDA_IMM_0->S_LDA_IMM_1->S_PC_INC_0
+CYCLES_LDA_DIR = 9  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_LDA_DIR_0->S_LDA_DIR_1->S_LDA_DIR_2->S_LDA_DIR_3->S_PC_INC_0
+CYCLES_STA_IMM = 9  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IMM_0->S_STA_IMM_1->S_STA_IMM_2->S_STA_IMM_3->S_PC_INC_0
+CYCLES_STA_DIR = 11 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IMM_0->S_STA_IMM_1->S_STA_IMM_2->S_STA_IMM_3->S_STA_IMM_4->S_STA_IMM_5->S_PC_INC_0
 
-CYCLES_ALU_IMM = 7 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM_0->S_<ALU>_IMM_1->S_PC_INC_0
-CYCLES_ALU_DIR = 9 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_DIR_0->S_<ALU>_DIR_1->S_<ALU>_DIR_2->S_<ALU>_DIR_3->S_PC_INC_0
+CYCLES_ALU_IMM = 7  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM_0->S_<ALU>_IMM_1->S_PC_INC_0
+CYCLES_ALU_DIR = 9  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_DIR_0->S_<ALU>_DIR_1->S_<ALU>_DIR_2->S_<ALU>_DIR_3->S_PC_INC_0
 
 
 #Test Utility Functions
@@ -439,10 +440,10 @@ async def test_lda_imm_sta_imm(dut):
         await ClockCycles(dut.clk,1)
 
 
-#Test LDA_DIR instruction
+#Test LDA_DIR and STA_DIR instruction
 #-------------------------
 @cocotb.test()
-async def test_lda_dir(dut):
+async def test_lda_dir_sta_dir(dut):
     #Start
     dut._log.info("Start")
 
@@ -498,23 +499,33 @@ async def test_lda_dir(dut):
         #S_LDA_DIR_2->S_LDA_DIR_3->S_PC_INC_0->S_FETCH_0(current)
         await ClockCycles(dut.clk, 3)
 
-        #STA_IMM the data back out
+        #STA_DIR the data back out
         #---------
 
-        #Set data input buss to a STA_IMM
-        dut._log.info("IR_STA_IMM")
-        dut.uio_in.value = IR_STA_IMM
+        #Set data input buss to a STA_DIR
+        dut._log.info("IR_STA_DIR")
+        dut.uio_in.value = IR_STA_DIR
 
         #Clock in the first half of the instruction
-        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IMM_0(current)
+        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_DIR_0(current)
         await ClockCycles(dut.clk, CYCLES_NOP)
 
         #Set the data buss to a test 7-bit address
         dut.uio_in.value = test_address
 
+        #Clock till we get to fetch direct address state
+        #S_STA_DIR_0->S_STA_DIR_1->S_STA_DIR_2(current)
+        await ClockCycles(dut.clk, (CYCLES_STA_DIR - CYCLES_NOP) - 5)
+
+        #Verify that the test address is being driven out on the addr buss
+        assert (dut.uo_out.value & 0x7f) == test_address
+
+        #Set the data buss to an inverted test 7-bit address
+        dut.uio_in.value = test_address ^ 0x7f
+
         #Clock till we get to the drive out state
-        #S_STA_IMM_0->S_STA_IMM_1->S_STA_IMM_2->S_STA_IMM_3(current)
-        await ClockCycles(dut.clk, (CYCLES_STA_IMM - CYCLES_NOP) - 2)
+        #S_STA_DIR_2->S_STA_DIR_3->S_STA_DIR_4->S_STA_DIR_5(current)
+        await ClockCycles(dut.clk, 3)
 
         #Verify that we are driving
         assert dut.uio_oe == 0xff
@@ -522,14 +533,14 @@ async def test_lda_dir(dut):
         #Verify that test data is back out on the buss
         assert dut.uio_out.value == test_value
 
-        #Verify that the address is pointing to the test addr
-        assert (dut.uo_out.value & 0x7f) == test_address
+        #Verify that the address is pointing to the inverted test addr
+        assert (dut.uo_out.value & 0x7f) == test_address ^ 0x7f
 
         #Verify that WE is set
         assert (dut.uo_out.value & 0x80)
 
-        #Finish the STA_IMM instruction
-        #S_STA_IMM_3->S_PC_INC_0(current)
+        #Finish the STA_DIR instruction
+        #S_STA_DIR_3->S_PC_INC_0(current)
         await ClockCycles(dut.clk,1)
 
         #Verify that WE is no longer set
