@@ -79,6 +79,14 @@ module minibyte_cu(
     parameter IR_RSR_DIR = 8'h1A;
     parameter IR_JMP_IMM = 8'h1B;
     parameter IR_JMP_DIR = 8'h1C;
+    parameter IR_BNE_IMM = 8'h1D;
+    parameter IR_BNE_DIR = 8'h1E;
+    parameter IR_BEQ_IMM = 8'h1F;
+    parameter IR_BEQ_DIR = 8'h20;
+    parameter IR_BPL_IMM = 8'h21;
+    parameter IR_BPL_DIR = 8'h22;
+    parameter IR_BMI_IMM = 8'h23;
+    parameter IR_BMI_DIR = 8'h20;
 
     //State machine opcodes
     //--------------------------
@@ -2414,6 +2422,69 @@ module minibyte_cu(
                     //IR_LDA_DIR (load direct value to PC)
                     IR_JMP_DIR: next_state = S_JMP_DIR_0;
 
+                    //IR_BNE_IMM (banch if z clear immediate)
+                    IR_BNE_IMM: begin
+                        if(ccr_flag_zn_in[1] == 0)
+                            next_state = S_JMP_IMM_0;
+                        else
+                            next_state = S_FETCH_0;
+                    end
+
+                    //IR_BNE_DIR (banch if z clear direct)
+                    IR_BNE_DIR: begin
+                        if(ccr_flag_zn_in[1] == 0)
+                            next_state = S_JMP_DIR_0;
+                        else
+                            next_state = S_FETCH_0;
+                    end
+
+                    //IR_BEQ_IMM (banch if z set immediate)
+                    IR_BEQ_IMM: begin
+                        if(ccr_flag_zn_in[1] == 1)
+                            next_state = S_JMP_IMM_0;
+                        else
+                            next_state = S_FETCH_0;
+                    end
+
+                    //IR_BEQ_DIR (banch if z set direct)
+                    IR_BEQ_DIR: begin
+                        if(ccr_flag_zn_in[1] == 1)
+                            next_state = S_JMP_DIR_0;
+                        else
+                            next_state = S_FETCH_0;
+                    end
+
+                    //IR_BPL_IMM (banch if n clear immediate)
+                    IR_BPL_IMM: begin
+                        if(ccr_flag_zn_in[0] == 0)
+                            next_state = S_JMP_IMM_0;
+                        else
+                            next_state = S_FETCH_0;
+                    end
+
+                    //IR_BPL_DIR (banch if n clear direct)
+                    IR_BPL_DIR: begin
+                        if(ccr_flag_zn_in[0] == 0)
+                            next_state = S_JMP_DIR_0;
+                        else
+                            next_state = S_FETCH_0;
+                    end
+
+                    //IR_BMI_IMM (banch if n set immediate)
+                    IR_BMI_IMM: begin
+                        if(ccr_flag_zn_in[0] == 1)
+                            next_state = S_JMP_IMM_0;
+                        else
+                            next_state = S_FETCH_0;
+                    end
+
+                    //IR_BMI_DIR (banch if n set direct)
+                    IR_BMI_DIR: begin
+                        if(ccr_flag_zn_in[0] == 1)
+                            next_state = S_JMP_DIR_0;
+                        else
+                            next_state = S_FETCH_0;
+                    end
 
                     //Invalid IR, goto fetch_0
                     default: next_state = S_FETCH_0;
