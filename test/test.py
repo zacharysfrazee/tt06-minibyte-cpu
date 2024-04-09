@@ -886,7 +886,7 @@ async def test_jmp_dir(dut):
 
 
 
-#Test BNE_IMM/BEQ_IMM
+#Test BNE_IMM/BEQ_IMM/BNE_DIR/BEQ_DIR
 #-------------------------
 @cocotb.test()
 async def test_bne_beq(dut):
@@ -897,106 +897,125 @@ async def test_bne_beq(dut):
     clock = Clock(dut.clk, 10, units="us")
     cocotb.start_soon(clock.start())
 
-    #Reset
-    dut._log.info("Reset")
-    dut.ena.value    = 1
-    dut.ui_in.value  = TM_OFF
-    dut.uio_in.value = 0
-    dut.rst_n.value  = 0
-    await ClockCycles(dut.clk, 10)
-    dut.rst_n.value  = 1
+    #Starter settings
+    bne_ir       = IR_BNE_IMM
+    beq_ir       = IR_BEQ_IMM
+    bne_str      = 'IR_BNE_IMM'
+    beq_str      = 'IR_BEQ_IMM'
+    num_cycles   = CYCLES_JMP_IMM
+    extra_cycles = 2 #Needed to clock through an even number of NOPs if a branch is not taken
 
-    #Clock through the reset state S_RESET_0->S_FETCH_0(current)
-    await ClockCycles(dut.clk, 2)
-
-    #Test Values
-    #Intentionaly a NOP so that if we don't branch we go into a nop after that instead
-    #This is needed as a branch IMM can take either 6 cycles if taken, or just 4 cycles if skipped
-    test_value = IR_NOP
-
-    #z flag state
-    z_state = 0
-
-    #Test both jump taken and jump skiped case
+    #Repeat for both IMM and DIR branch instructions
     for _ in range(2):
 
-        #Test BNE
-        #---------------
-        dut._log.info("")
-        dut.uio_in.value = IR_BNE_IMM
-
-        #Clock in the first half of the instruction
-        #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
-        #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
-        await ClockCycles(dut.clk, CYCLES_NOP)
-
-        #Set the data buss to the test_value to be loaded
-        dut.uio_in.value = test_value & 0x7f
-
-        #Clock in the remaining cycles
-        #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
-        #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
-        await ClockCycles(dut.clk, CYCLES_JMP_IMM - CYCLES_NOP)
-
-        #Verify that PC has the expected value
-        if z_state == 0:
-            assert dut.uo_out.value == (test_value & 0x7f)
-        else:
-            assert dut.uo_out.value != (test_value & 0x7f)
-
-            #Clock in extra cycles to get back to S_FETCH_0
-            #S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
-            await ClockCycles(dut.clk, 2)
-
-        #Test BEQ
-        #---------------
-
-        #Set data input buss to a JMP_IMM
-        dut._log.info("IR_BEQ_IMM")
-        dut.uio_in.value = IR_BEQ_IMM
-
-        #Clock in the first half of the instruction
-        #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
-        #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
-        await ClockCycles(dut.clk, CYCLES_NOP)
-
-        #Set the data buss to the test_value to be loaded
-        dut.uio_in.value = test_value & 0x7f
-
-        #Clock in the remaining cycles
-        #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
-        #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
-        await ClockCycles(dut.clk, CYCLES_JMP_IMM - CYCLES_NOP)
-
-        #Verify that PC has the expected value
-        if z_state == 1:
-            assert dut.uo_out.value == (test_value & 0x7f)
-        else:
-            assert dut.uo_out.value != (test_value & 0x7f)
-
-            #Clock in extra cycles to get back to S_FETCH_0
-            #S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
-            await ClockCycles(dut.clk, 2)
-
-        #Do math to set the Z flag
-        #---------------------------
-        dut.uio_in.value = IR_ADD_IMM
-
-        #Clock in the first half of the instruction
-        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM/DIR_0(current)
-        await ClockCycles(dut.clk, CYCLES_NOP)
-
-        #Add 0 to 0
+        #Reset
+        dut._log.info("Reset")
+        dut.ena.value    = 1
+        dut.ui_in.value  = TM_OFF
         dut.uio_in.value = 0
+        dut.rst_n.value  = 0
+        await ClockCycles(dut.clk, 10)
+        dut.rst_n.value  = 1
 
-        #Finish ALU op
-        await ClockCycles(dut.clk, CYCLES_ALU_IMM - CYCLES_NOP)
+        #Clock through the reset state S_RESET_0->S_FETCH_0(current)
+        await ClockCycles(dut.clk, 2)
 
-        #Set z state
-        z_state = 1
+        #Test Values
+        #Intentionaly a NOP so that if we don't branch we go into a nop after that instead
+        #This is needed as a branch IMM can take either 6 cycles if taken, or just 4 cycles if skipped
+        test_value = IR_NOP
+
+        #z flag state
+        z_state = 0
+
+        #Test both jump taken and jump skiped case
+        for _ in range(2):
+
+            #Test BNE
+            #---------------
+            dut._log.info(bne_str)
+            dut.uio_in.value = bne_ir
+
+            #Clock in the first half of the instruction
+            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
+            #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
+            await ClockCycles(dut.clk, CYCLES_NOP)
+
+            #Set the data buss to the test_value to be loaded
+            dut.uio_in.value = test_value & 0x7f
+
+            #Clock in the remaining cycles
+            #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
+            #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
+            await ClockCycles(dut.clk, num_cycles - CYCLES_NOP)
+
+            #Verify that PC has the expected value
+            if z_state == 0:
+                assert dut.uo_out.value == (test_value & 0x7f)
+            else:
+                assert dut.uo_out.value != (test_value & 0x7f)
+
+                #Clock in extra cycles to get back to S_FETCH_0
+                #S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
+                await ClockCycles(dut.clk, extra_cycles)
+
+            #Test BEQ
+            #---------------
+
+            #Set data input buss to a JMP_IMM
+            dut._log.info(beq_str)
+            dut.uio_in.value = beq_ir
+
+            #Clock in the first half of the instruction
+            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
+            #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
+            await ClockCycles(dut.clk, CYCLES_NOP)
+
+            #Set the data buss to the test_value to be loaded
+            dut.uio_in.value = test_value & 0x7f
+
+            #Clock in the remaining cycles
+            #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
+            #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
+            await ClockCycles(dut.clk, num_cycles - CYCLES_NOP)
+
+            #Verify that PC has the expected value
+            if z_state == 1:
+                assert dut.uo_out.value == (test_value & 0x7f)
+            else:
+                assert dut.uo_out.value != (test_value & 0x7f)
+
+                #Clock in extra cycles to get back to S_FETCH_0
+                #S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
+                await ClockCycles(dut.clk, extra_cycles)
+
+            #Do math to set the Z flag
+            #---------------------------
+            dut.uio_in.value = IR_ADD_IMM
+
+            #Clock in the first half of the instruction
+            #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM/DIR_0(current)
+            await ClockCycles(dut.clk, CYCLES_NOP)
+
+            #Add 0 to 0
+            dut.uio_in.value = 0
+
+            #Finish ALU op
+            await ClockCycles(dut.clk, CYCLES_ALU_IMM - CYCLES_NOP)
+
+            #Set z state
+            z_state = 1
+
+        #Change settings to cover DIR variants
+        bne_ir       = IR_BNE_DIR
+        beq_ir       = IR_BEQ_DIR
+        bne_str      = 'IR_BNE_DIR'
+        beq_str      = 'IR_BEQ_DIR'
+        num_cycles   = CYCLES_JMP_DIR
+        extra_cycles = 0 #Not needed as a full JMP_DIR is 2 even NOPs long
 
 
-#Test BPL_IMM/BMI_IMM
+#Test BPL_IMM/BMI_IMM/BPL_DIR/BMI_DIR
 #-------------------------
 @cocotb.test()
 async def test_bpl_bmi(dut):
@@ -1007,100 +1026,122 @@ async def test_bpl_bmi(dut):
     clock = Clock(dut.clk, 10, units="us")
     cocotb.start_soon(clock.start())
 
-    #Reset
-    dut._log.info("Reset")
-    dut.ena.value    = 1
-    dut.ui_in.value  = TM_OFF
-    dut.uio_in.value = 0
-    dut.rst_n.value  = 0
-    await ClockCycles(dut.clk, 10)
-    dut.rst_n.value  = 1
+    #Starter settings
+    bpl_ir       = IR_BPL_IMM
+    bmi_ir       = IR_BMI_IMM
+    bpl_str      = 'IR_BPL_IMM'
+    bmi_str      = 'IR_BMI_IMM'
+    num_cycles   = CYCLES_JMP_IMM
+    extra_cycles = 2 #Needed to clock through an even number of NOPs if a branch is not taken
 
-    #Clock through the reset state S_RESET_0->S_FETCH_0(current)
-    await ClockCycles(dut.clk, 2)
-
-    #Test Values
-    #Intentionaly a NOP so that if we don't branch we go into a nop after that instead
-    #This is needed as a branch IMM can take either 6 cycles if taken, or just 4 cycles if skipped
-    test_value = IR_NOP
-
-    #z flag state
-    n_state = 0
-
-    #Test both jump taken and jump skiped case
+    #Repeat for both IMM and DIR branch instructions
     for _ in range(2):
 
-        #Test BPL
-        #---------------
-        dut._log.info("")
-        dut.uio_in.value = IR_BPL_IMM
+        #Reset
+        dut._log.info("Reset")
+        dut.ena.value    = 1
+        dut.ui_in.value  = TM_OFF
+        dut.uio_in.value = 0
+        dut.rst_n.value  = 0
+        await ClockCycles(dut.clk, 10)
+        dut.rst_n.value  = 1
 
-        #Clock in the first half of the instruction
-        #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
-        #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
-        await ClockCycles(dut.clk, CYCLES_NOP)
+        #Clock through the reset state S_RESET_0->S_FETCH_0(current)
+        await ClockCycles(dut.clk, 2)
 
-        #Set the data buss to the test_value to be loaded
-        dut.uio_in.value = test_value & 0x7f
+        #Test Values
+        #Intentionaly a NOP so that if we don't branch we go into a nop after that instead
+        #This is needed as a branch IMM can take either 6 cycles if taken, or just 4 cycles if skipped
+        test_value = IR_NOP
 
-        #Clock in the remaining cycles
-        #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
-        #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
-        await ClockCycles(dut.clk, CYCLES_JMP_IMM - CYCLES_NOP)
+        #n flag state
+        n_state = 0
 
-        #Verify that PC has the expected value
-        if n_state == 0:
-            assert dut.uo_out.value == (test_value & 0x7f)
-        else:
-            assert dut.uo_out.value != (test_value & 0x7f)
+        #Test both jump taken and jump skiped case
+        for _ in range(2):
 
-            #Clock in extra cycles to get back to S_FETCH_0
-            #S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
-            await ClockCycles(dut.clk, 2)
+            #Test BPL
+            #---------------
 
-        #Test BMI
-        #---------------
+            dut._log.info(bpl_str)
+            dut.uio_in.value = bpl_ir
 
-        #Set data input buss to a JMP_IMM
-        dut._log.info("IR_BMI_IMM")
-        dut.uio_in.value = IR_BMI_IMM
+            #Clock in the first half of the instruction
+            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
+            #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
+            await ClockCycles(dut.clk, CYCLES_NOP)
 
-        #Clock in the first half of the instruction
-        #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
-        #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
-        await ClockCycles(dut.clk, CYCLES_NOP)
+            #Set the data buss to the test_value to be loaded
+            dut.uio_in.value = test_value & 0x7f
 
-        #Set the data buss to the test_value to be loaded
-        dut.uio_in.value = test_value & 0x7f
+            #Clock in the remaining cycles
+            #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
+            #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
+            await ClockCycles(dut.clk, num_cycles - CYCLES_NOP)
 
-        #Clock in the remaining cycles
-        #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
-        #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
-        await ClockCycles(dut.clk, CYCLES_JMP_IMM - CYCLES_NOP)
+            #Verify that PC has the expected value
+            if n_state == 0:
+                assert dut.uo_out.value == (test_value & 0x7f)
+            else:
+                assert dut.uo_out.value != (test_value & 0x7f)
 
-        #Verify that PC has the expected value
-        if n_state == 1:
-            assert dut.uo_out.value == (test_value & 0x7f)
-        else:
-            assert dut.uo_out.value != (test_value & 0x7f)
+                #Clock in extra cycles to get back to S_FETCH_0
+                #S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
+                await ClockCycles(dut.clk, extra_cycles)
 
-            #Clock in extra cycles to get back to S_FETCH_0
-            #S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
-            await ClockCycles(dut.clk, 2)
 
-        #Do math to set the N flag
-        #---------------------------
-        dut.uio_in.value = IR_SUB_IMM
+            #Test BMI
+            #---------------
 
-        #Clock in the first half of the instruction
-        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM/DIR_0(current)
-        await ClockCycles(dut.clk, CYCLES_NOP)
+            #Set data input buss to a JMP_IMM
+            dut._log.info(bmi_str)
+            dut.uio_in.value = bmi_ir
 
-        #Subtracy 1 from 0
-        dut.uio_in.value = 1
+            #Clock in the first half of the instruction
+            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
+            #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
+            await ClockCycles(dut.clk, CYCLES_NOP)
 
-        #Finish ALU op
-        await ClockCycles(dut.clk, CYCLES_ALU_IMM - CYCLES_NOP)
+            #Set the data buss to the test_value to be loaded
+            dut.uio_in.value = test_value & 0x7f
 
-        #Set z state
-        n_state = 1
+            #Clock in the remaining cycles
+            #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
+            #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
+            await ClockCycles(dut.clk, num_cycles - CYCLES_NOP)
+
+            #Verify that PC has the expected value
+            if n_state == 1:
+                assert dut.uo_out.value == (test_value & 0x7f)
+            else:
+                assert dut.uo_out.value != (test_value & 0x7f)
+
+                #Clock in extra cycles to get back to S_FETCH_0
+                #S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
+                await ClockCycles(dut.clk, extra_cycles)
+
+
+            #Do math to set the N flag
+            #---------------------------
+            dut.uio_in.value = IR_SUB_IMM
+
+            #Clock in the first half of the instruction
+            #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM/DIR_0(current)
+            await ClockCycles(dut.clk, CYCLES_NOP)
+
+            #Subtracy 1 from 0
+            dut.uio_in.value = 1
+
+            #Finish ALU op
+            await ClockCycles(dut.clk, CYCLES_ALU_IMM - CYCLES_NOP)
+
+            #Set n state
+            n_state = 1
+
+        #Change settings to cover DIR variants
+        bpl_ir       = IR_BPL_DIR
+        bmi_ir       = IR_BMI_DIR
+        bpl_str      = 'IR_BPL_DIR'
+        bmi_str      = 'IR_BMI_DIR'
+        num_cycles   = CYCLES_JMP_DIR
+        extra_cycles = 0 #Not needed as a full JMP_DIR is 2 even NOPs long

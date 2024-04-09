@@ -86,7 +86,7 @@ module minibyte_cu(
     parameter IR_BPL_IMM = 8'h21;
     parameter IR_BPL_DIR = 8'h22;
     parameter IR_BMI_IMM = 8'h23;
-    parameter IR_BMI_DIR = 8'h20;
+    parameter IR_BMI_DIR = 8'h24;
 
     //State machine opcodes
     //--------------------------
