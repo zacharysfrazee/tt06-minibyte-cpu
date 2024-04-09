@@ -21,6 +21,8 @@ TM_DEBUG_OUT_IR       = 0x05
 TM_DEBUG_OUT_CCR      = 0x06
 TM_DEBUG_OUT_CU_STATE = 0x07
 
+TM_DEMO_ROM           = 0x08
+
 #IR Opcodes
 #-------------------------
 IR_NOP     = 0x00
@@ -903,7 +905,7 @@ async def test_bne_beq(dut):
     bne_str      = 'IR_BNE_IMM'
     beq_str      = 'IR_BEQ_IMM'
     num_cycles   = CYCLES_JMP_IMM
-    extra_cycles = 2 #Needed to clock through an even number of NOPs if a branch is not taken
+    extra_cycles = 1 #Needed to clock through an even number of NOPs if a branch is not taken
 
     #Repeat for both IMM and DIR branch instructions
     for _ in range(2):
@@ -1012,7 +1014,7 @@ async def test_bne_beq(dut):
         bne_str      = 'IR_BNE_DIR'
         beq_str      = 'IR_BEQ_DIR'
         num_cycles   = CYCLES_JMP_DIR
-        extra_cycles = 0 #Not needed as a full JMP_DIR is 2 even NOPs long
+        extra_cycles = 3 #Needed as we jump through a NOPs worth of instructions plus a PC inc
 
 
 #Test BPL_IMM/BMI_IMM/BPL_DIR/BMI_DIR
@@ -1032,7 +1034,7 @@ async def test_bpl_bmi(dut):
     bpl_str      = 'IR_BPL_IMM'
     bmi_str      = 'IR_BMI_IMM'
     num_cycles   = CYCLES_JMP_IMM
-    extra_cycles = 2 #Needed to clock through an even number of NOPs if a branch is not taken
+    extra_cycles = 1 #Needed to clock through an even number of NOPs if a branch is not taken
 
     #Repeat for both IMM and DIR branch instructions
     for _ in range(2):
@@ -1144,4 +1146,80 @@ async def test_bpl_bmi(dut):
         bpl_str      = 'IR_BPL_DIR'
         bmi_str      = 'IR_BMI_DIR'
         num_cycles   = CYCLES_JMP_DIR
-        extra_cycles = 0 #Not needed as a full JMP_DIR is 2 even NOPs long
+        extra_cycles = 3 #Needed as we jump through a NOPs worth of instructions plus a PC inc
+
+
+
+#Test Demo ROM
+#-------------------------
+@cocotb.test()
+async def test_demorom(dut):
+    #Start
+    dut._log.info("Start")
+
+    #Setup Clock
+    clock = Clock(dut.clk, 10, units="us")
+    cocotb.start_soon(clock.start())
+
+    #Reset
+    dut._log.info("Reset")
+    dut.ena.value    = 1
+    dut.ui_in.value  = TM_DEMO_ROM #ENABLE DEMO ROM!!!!
+    dut.uio_in.value = 0
+    dut.rst_n.value  = 0
+    await ClockCycles(dut.clk, 10)
+    dut.rst_n.value  = 1
+
+    #Clock and see what happens!
+    #---------------------------
+
+    #Run through the program twice to verify looping back
+    #-------
+    for _ in range(2):
+
+        #Binary Count Loop
+        #-------
+        expected_address = 0x40
+        expected_value   = 0x01
+        while expected_value <= 256:
+
+            #Check to see if the dut is driving
+            if dut.uio_oe.value == 0xff:
+                #Make sure WE is set
+                assert dut.uo_out.value & 0x80
+
+                #Make sure the address is correct
+                assert dut.uo_out.value & 0x7f == expected_address
+
+                #Make sure the value is correct
+                assert dut.uio_out.value  == expected_value & 0xff
+
+                #Next value
+                expected_value += 1
+
+            #Next clock
+            await ClockCycles(dut.clk, 1)
+
+        #Left Shift Loop
+        #-------
+        expected_value   = 0x01
+        while expected_value < 0b100000000:
+
+            #Check to see if the dut is driving
+            if dut.uio_oe.value == 0xff:
+                #Make sure WE is set
+                assert dut.uo_out.value & 0x80
+
+                #Make sure the address is correct
+                assert dut.uo_out.value & 0x7f == expected_address
+
+                #Make sure the value is correct
+                assert dut.uio_out.value  == expected_value
+
+                #Next value
+                expected_value = expected_value << 1
+
+            #Next clock
+            await ClockCycles(dut.clk, 1)
+
+

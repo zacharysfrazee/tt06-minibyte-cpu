@@ -2427,7 +2427,7 @@ module minibyte_cu(
                         if(ccr_flag_zn_in[1] == 0)
                             next_state = S_JMP_IMM_0;
                         else
-                            next_state = S_FETCH_0;
+                            next_state = S_PC_INC_0;
                     end
 
                     //IR_BNE_DIR (banch if z clear direct)
@@ -2435,7 +2435,7 @@ module minibyte_cu(
                         if(ccr_flag_zn_in[1] == 0)
                             next_state = S_JMP_DIR_0;
                         else
-                            next_state = S_FETCH_0;
+                            next_state = S_PC_INC_0;
                     end
 
                     //IR_BEQ_IMM (banch if z set immediate)
@@ -2443,7 +2443,7 @@ module minibyte_cu(
                         if(ccr_flag_zn_in[1] == 1)
                             next_state = S_JMP_IMM_0;
                         else
-                            next_state = S_FETCH_0;
+                            next_state = S_PC_INC_0;
                     end
 
                     //IR_BEQ_DIR (banch if z set direct)
@@ -2451,7 +2451,7 @@ module minibyte_cu(
                         if(ccr_flag_zn_in[1] == 1)
                             next_state = S_JMP_DIR_0;
                         else
-                            next_state = S_FETCH_0;
+                            next_state = S_PC_INC_0;
                     end
 
                     //IR_BPL_IMM (banch if n clear immediate)
@@ -2459,7 +2459,7 @@ module minibyte_cu(
                         if(ccr_flag_zn_in[0] == 0)
                             next_state = S_JMP_IMM_0;
                         else
-                            next_state = S_FETCH_0;
+                            next_state = S_PC_INC_0;
                     end
 
                     //IR_BPL_DIR (banch if n clear direct)
@@ -2467,7 +2467,7 @@ module minibyte_cu(
                         if(ccr_flag_zn_in[0] == 0)
                             next_state = S_JMP_DIR_0;
                         else
-                            next_state = S_FETCH_0;
+                            next_state = S_PC_INC_0;
                     end
 
                     //IR_BMI_IMM (banch if n set immediate)
@@ -2475,7 +2475,7 @@ module minibyte_cu(
                         if(ccr_flag_zn_in[0] == 1)
                             next_state = S_JMP_IMM_0;
                         else
-                            next_state = S_FETCH_0;
+                            next_state = S_PC_INC_0;
                     end
 
                     //IR_BMI_DIR (banch if n set direct)
@@ -2483,7 +2483,7 @@ module minibyte_cu(
                         if(ccr_flag_zn_in[0] == 1)
                             next_state = S_JMP_DIR_0;
                         else
-                            next_state = S_FETCH_0;
+                            next_state = S_PC_INC_0;
                     end
 
                     //Invalid IR, goto fetch_0
