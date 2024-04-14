@@ -28,8 +28,8 @@ TM_DEMO_ROM           = 0x08
 IR_NOP     = 0x00
 IR_LDA_IMM = 0x01
 IR_LDA_DIR = 0x02
-IR_STA_IMM = 0x03
-IR_STA_DIR = 0x04
+IR_STA_DIR = 0x03
+IR_STA_IND = 0x04
 IR_ADD_IMM = 0x05
 IR_ADD_DIR = 0x06
 IR_SUB_IMM = 0x07
@@ -52,30 +52,30 @@ IR_RSL_IMM = 0x17
 IR_RSL_DIR = 0x18
 IR_RSR_IMM = 0x19
 IR_RSR_DIR = 0x1A
-IR_JMP_IMM = 0x1B
-IR_JMP_DIR = 0x1C
-IR_BNE_IMM = 0x1D
-IR_BNE_DIR = 0x1E
-IR_BEQ_IMM = 0x1F
-IR_BEQ_DIR = 0x20
-IR_BPL_IMM = 0x21
-IR_BPL_DIR = 0x22
-IR_BMI_IMM = 0x23
-IR_BMI_DIR = 0x24
+IR_JMP_DIR = 0x1B
+IR_JMP_IND = 0x1C
+IR_BNE_DIR = 0x1D
+IR_BNE_IND = 0x1E
+IR_BEQ_DIR = 0x1F
+IR_BEQ_IND = 0x20
+IR_BPL_DIR = 0x21
+IR_BPL_IND = 0x22
+IR_BMI_DIR = 0x23
+IR_BMI_IND = 0x24
 
 #IR Cycle Counts
 #-------------------------
 CYCLES_NOP     = 4  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0
 CYCLES_LDA_IMM = 7  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_LDA_IMM_0->S_LDA_IMM_1->S_PC_INC_0
 CYCLES_LDA_DIR = 9  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_LDA_DIR_0->S_LDA_DIR_1->S_LDA_DIR_2->S_LDA_DIR_3->S_PC_INC_0
-CYCLES_STA_IMM = 9  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IMM_0->S_STA_IMM_1->S_STA_IMM_2->S_STA_IMM_3->S_PC_INC_0
-CYCLES_STA_DIR = 11 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IMM_0->S_STA_IMM_1->S_STA_IMM_2->S_STA_IMM_3->S_STA_IMM_4->S_STA_IMM_5->S_PC_INC_0
+CYCLES_STA_DIR = 9  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_DIR_0->S_STA_DIR_1->S_STA_DIR_2->S_STA_DIR_3->S_PC_INC_0
+CYCLES_STA_IND = 11 # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_DIR_0->S_STA_DIR_1->S_STA_DIR_2->S_STA_DIR_3->S_STA_DIR_4->S_STA_DIR_5->S_PC_INC_0
 
 CYCLES_ALU_IMM = 7  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_IMM_0->S_<ALU>_IMM_1->S_PC_INC_0
 CYCLES_ALU_DIR = 9  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_<ALU>_DIR_0->S_<ALU>_DIR_1->S_<ALU>_DIR_2->S_<ALU>_DIR_3->S_PC_INC_0
 
-CYCLES_JMP_IMM = 6  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0->S_JMP_IMM_1
-CYCLES_JMP_DIR = 8  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_DIR_0->S_JMP_DIR_1->S_JMP_DIR_2->S_JMP_DIR_3
+CYCLES_JMP_DIR = 6  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_DIR_0->S_JMP_DIR_1
+CYCLES_JMP_IND = 8  # S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IND_0->S_JMP_IND_1->S_JMP_IND_2->S_JMP_IND_3
 
 #Test Utility Functions
 #-------------------------
@@ -359,10 +359,10 @@ async def test_nop(dut):
     #Verify that PC has incremented to 7
     assert dut.uo_out.value == 0x07
 
-#Test LDA_IMM/STA_IMM instruction
+#Test LDA_IMM/STA_DIR instruction
 #-------------------------
 @cocotb.test()
-async def test_lda_imm_sta_imm(dut):
+async def test_lda_imm_sta_dir(dut):
     #Start
     dut._log.info("Start")
 
@@ -408,23 +408,23 @@ async def test_lda_imm_sta_imm(dut):
         #S_LDA_IMM_0->S_LDA_IMM_1->S_PC_INC_0->S_FETCH_0(current)
         await ClockCycles(dut.clk, CYCLES_LDA_IMM - CYCLES_NOP)
 
-        #STA_IMM the data back out
+        #STA_DIR the data back out
         #---------
 
-        #Set data input buss to a STA_IMM
-        dut._log.info("IR_STA_IMM")
-        dut.uio_in.value = IR_STA_IMM
+        #Set data input buss to a STA_DIR
+        dut._log.info("IR_STA_DIR")
+        dut.uio_in.value = IR_STA_DIR
 
         #Clock in the first half of the instruction
-        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IMM_0(current)
+        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_DIR_0(current)
         await ClockCycles(dut.clk, CYCLES_NOP)
 
         #Set the data buss to a test 7-bit address
         dut.uio_in.value = test_address
 
         #Clock till we get to the drive out state
-        #S_STA_IMM_0->S_STA_IMM_1->S_STA_IMM_2->S_STA_IMM_3(current)
-        await ClockCycles(dut.clk, (CYCLES_STA_IMM - CYCLES_NOP) - 2)
+        #S_STA_DIR_0->S_STA_DIR_1->S_STA_DIR_2->S_STA_DIR_3(current)
+        await ClockCycles(dut.clk, (CYCLES_STA_DIR - CYCLES_NOP) - 2)
 
         #Verify that we are driving
         assert dut.uio_oe == 0xff
@@ -438,8 +438,8 @@ async def test_lda_imm_sta_imm(dut):
         #Verify that WE is set
         assert (dut.uo_out.value & 0x80)
 
-        #Finish the STA_IMM instruction
-        #S_STA_IMM_3->S_PC_INC_0(current)
+        #Finish the STA_DIR instruction
+        #S_STA_DIR_3->S_PC_INC_0(current)
         await ClockCycles(dut.clk,1)
 
         #Verify that WE is no longer set
@@ -453,10 +453,10 @@ async def test_lda_imm_sta_imm(dut):
         await ClockCycles(dut.clk,1)
 
 
-#Test LDA_DIR and STA_DIR instruction
+#Test LDA_DIR and STA_IND instruction
 #-------------------------
 @cocotb.test()
-async def test_lda_dir_sta_dir(dut):
+async def test_lda_dir_sta_ind(dut):
     #Start
     dut._log.info("Start")
 
@@ -512,23 +512,23 @@ async def test_lda_dir_sta_dir(dut):
         #S_LDA_DIR_2->S_LDA_DIR_3->S_PC_INC_0->S_FETCH_0(current)
         await ClockCycles(dut.clk, 3)
 
-        #STA_DIR the data back out
+        #STA_IND the data back out
         #---------
 
-        #Set data input buss to a STA_DIR
-        dut._log.info("IR_STA_DIR")
-        dut.uio_in.value = IR_STA_DIR
+        #Set data input buss to a STA_IND
+        dut._log.info("IR_STA_IND")
+        dut.uio_in.value = IR_STA_IND
 
         #Clock in the first half of the instruction
-        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_DIR_0(current)
+        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_STA_IND_0(current)
         await ClockCycles(dut.clk, CYCLES_NOP)
 
         #Set the data buss to a test 7-bit address
         dut.uio_in.value = test_address
 
-        #Clock till we get to fetch direct address state
-        #S_STA_DIR_0->S_STA_DIR_1->S_STA_DIR_2(current)
-        await ClockCycles(dut.clk, (CYCLES_STA_DIR - CYCLES_NOP) - 5)
+        #Clock till we get to fetch indirect address state
+        #S_STA_IND_0->S_STA_IND_1->S_STA_IND_2(current)
+        await ClockCycles(dut.clk, (CYCLES_STA_IND - CYCLES_NOP) - 5)
 
         #Verify that the test address is being driven out on the addr buss
         assert (dut.uo_out.value & 0x7f) == test_address
@@ -537,7 +537,7 @@ async def test_lda_dir_sta_dir(dut):
         dut.uio_in.value = test_address ^ 0x7f
 
         #Clock till we get to the drive out state
-        #S_STA_DIR_2->S_STA_DIR_3->S_STA_DIR_4->S_STA_DIR_5(current)
+        #S_STA_IND_2->S_STA_IND_3->S_STA_IND_4->S_STA_IND_5(current)
         await ClockCycles(dut.clk, 3)
 
         #Verify that we are driving
@@ -552,8 +552,8 @@ async def test_lda_dir_sta_dir(dut):
         #Verify that WE is set
         assert (dut.uo_out.value & 0x80)
 
-        #Finish the STA_DIR instruction
-        #S_STA_DIR_3->S_PC_INC_0(current)
+        #Finish the STA_IND instruction
+        #S_STA_IND_3->S_PC_INC_0(current)
         await ClockCycles(dut.clk,1)
 
         #Verify that WE is no longer set
@@ -780,10 +780,10 @@ async def test_alu_ccr(dut):
             dut.ui_in.value = TM_OFF
 
 
-#Test JMP_IMM
+#Test JMP_DIR
 #-------------------------
 @cocotb.test()
-async def test_jmp_imm(dut):
+async def test_jmp_dir(dut):
     #Start
     dut._log.info("Start")
 
@@ -808,29 +808,29 @@ async def test_jmp_imm(dut):
 
     #Main test loop
     for test_value in TEST_VALUES:
-        #Set data input buss to a JMP_IMM
-        dut._log.info("IR_JMP_IMM")
-        dut.uio_in.value = IR_JMP_IMM
+        #Set data input buss to a JMP_DIR
+        dut._log.info("IR_JMP_DIR")
+        dut.uio_in.value = IR_JMP_DIR
 
         #Clock in the first half of the instruction
-        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
+        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_DIR_0(current)
         await ClockCycles(dut.clk, CYCLES_NOP)
 
         #Set the data buss to the test_value to be loaded
         dut.uio_in.value = test_value & 0x7f
 
         #Clock in the remaining cycles
-        #S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
-        await ClockCycles(dut.clk, CYCLES_JMP_IMM - CYCLES_NOP)
+        #S_JMP_DIR_0->S_JMP_DIR_1->S_FETCH_0(current)
+        await ClockCycles(dut.clk, CYCLES_JMP_DIR - CYCLES_NOP)
 
         #Verify that PC has the expected value
         assert dut.uo_out.value == (test_value & 0x7f)
 
 
-#Test JMP_DIR
+#Test JMP_IND
 #-------------------------
 @cocotb.test()
-async def test_jmp_dir(dut):
+async def test_jmp_ind(dut):
     #Start
     dut._log.info("Start")
 
@@ -858,20 +858,20 @@ async def test_jmp_dir(dut):
         #Test address
         test_address = (test_value ^ 0x7f) & 0x7f
 
-        #Set data input buss to a JMP_DIR
-        dut._log.info("IR_JMP_DIR")
-        dut.uio_in.value = IR_JMP_DIR
+        #Set data input buss to a JMP_IND
+        dut._log.info("IR_JMP_IND")
+        dut.uio_in.value = IR_JMP_IND
 
         #Clock in the first half of the instruction
-        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_DIR_0(current)
+        #S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IND_0(current)
         await ClockCycles(dut.clk, CYCLES_NOP)
 
         #Set the data buss to the test_address to be loaded
         dut.uio_in.value = test_address & 0x7f
 
         #Clock in the remaining cycles -2
-        #S_JMP_DIR_0->S_JMP_DIR_1->S_JMP_DIR_2(current)
-        await ClockCycles(dut.clk, (CYCLES_JMP_DIR - CYCLES_NOP) - 2)
+        #S_JMP_IND_0->S_JMP_IND_1->S_JMP_IND_2(current)
+        await ClockCycles(dut.clk, (CYCLES_JMP_IND - CYCLES_NOP) - 2)
 
         #Verify that M has the expected value
         assert dut.uo_out.value == test_address
@@ -880,7 +880,7 @@ async def test_jmp_dir(dut):
         dut.uio_in.value = test_value & 0x7f
 
         #Clock in the remaining cycles
-        #S_JMP_DIR_2->S_JMP_DIR_3->S_FETCH_0(current)
+        #S_JMP_IND_2->S_JMP_IND_3->S_FETCH_0(current)
         await ClockCycles(dut.clk, 2)
 
         #Verify that PC has the expected value
@@ -888,7 +888,7 @@ async def test_jmp_dir(dut):
 
 
 
-#Test BNE_IMM/BEQ_IMM/BNE_DIR/BEQ_DIR
+#Test BNE_DIR/BEQ_DIR/BNE_IND/BEQ_IND
 #-------------------------
 @cocotb.test()
 async def test_bne_beq(dut):
@@ -900,11 +900,11 @@ async def test_bne_beq(dut):
     cocotb.start_soon(clock.start())
 
     #Starter settings
-    bne_ir       = IR_BNE_IMM
-    beq_ir       = IR_BEQ_IMM
-    bne_str      = 'IR_BNE_IMM'
-    beq_str      = 'IR_BEQ_IMM'
-    num_cycles   = CYCLES_JMP_IMM
+    bne_ir       = IR_BNE_DIR
+    beq_ir       = IR_BEQ_DIR
+    bne_str      = 'IR_BNE_DIR'
+    beq_str      = 'IR_BEQ_DIR'
+    num_cycles   = CYCLES_JMP_DIR
     extra_cycles = 1 #Needed to clock through an even number of NOPs if a branch is not taken
 
     #Repeat for both IMM and DIR branch instructions
@@ -939,7 +939,7 @@ async def test_bne_beq(dut):
             dut.uio_in.value = bne_ir
 
             #Clock in the first half of the instruction
-            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
+            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_DIR_0(current)
             #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
             await ClockCycles(dut.clk, CYCLES_NOP)
 
@@ -947,7 +947,7 @@ async def test_bne_beq(dut):
             dut.uio_in.value = test_value & 0x7f
 
             #Clock in the remaining cycles
-            #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
+            #IF BRANCH TAKEN:   S_JMP_DIR_0->S_JMP_DIR_1->S_FETCH_0(current)
             #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
             await ClockCycles(dut.clk, num_cycles - CYCLES_NOP)
 
@@ -964,12 +964,12 @@ async def test_bne_beq(dut):
             #Test BEQ
             #---------------
 
-            #Set data input buss to a JMP_IMM
+            #Set data input buss to a JMP_DIR
             dut._log.info(beq_str)
             dut.uio_in.value = beq_ir
 
             #Clock in the first half of the instruction
-            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
+            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_DIR_0(current)
             #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
             await ClockCycles(dut.clk, CYCLES_NOP)
 
@@ -977,7 +977,7 @@ async def test_bne_beq(dut):
             dut.uio_in.value = test_value & 0x7f
 
             #Clock in the remaining cycles
-            #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
+            #IF BRANCH TAKEN:   S_JMP_DIR_0->S_JMP_DIR_1->S_FETCH_0(current)
             #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
             await ClockCycles(dut.clk, num_cycles - CYCLES_NOP)
 
@@ -1009,15 +1009,15 @@ async def test_bne_beq(dut):
             z_state = 1
 
         #Change settings to cover DIR variants
-        bne_ir       = IR_BNE_DIR
-        beq_ir       = IR_BEQ_DIR
-        bne_str      = 'IR_BNE_DIR'
-        beq_str      = 'IR_BEQ_DIR'
-        num_cycles   = CYCLES_JMP_DIR
+        bne_ir       = IR_BNE_IND
+        beq_ir       = IR_BEQ_IND
+        bne_str      = 'IR_BNE_IND'
+        beq_str      = 'IR_BEQ_IND'
+        num_cycles   = CYCLES_JMP_IND
         extra_cycles = 3 #Needed as we jump through a NOPs worth of instructions plus a PC inc
 
 
-#Test BPL_IMM/BMI_IMM/BPL_DIR/BMI_DIR
+#Test BPL_DIR/BMI_DIR/BPL_IND/BMI_IND
 #-------------------------
 @cocotb.test()
 async def test_bpl_bmi(dut):
@@ -1029,11 +1029,11 @@ async def test_bpl_bmi(dut):
     cocotb.start_soon(clock.start())
 
     #Starter settings
-    bpl_ir       = IR_BPL_IMM
-    bmi_ir       = IR_BMI_IMM
-    bpl_str      = 'IR_BPL_IMM'
-    bmi_str      = 'IR_BMI_IMM'
-    num_cycles   = CYCLES_JMP_IMM
+    bpl_ir       = IR_BPL_DIR
+    bmi_ir       = IR_BMI_DIR
+    bpl_str      = 'IR_BPL_DIR'
+    bmi_str      = 'IR_BMI_DIR'
+    num_cycles   = CYCLES_JMP_DIR
     extra_cycles = 1 #Needed to clock through an even number of NOPs if a branch is not taken
 
     #Repeat for both IMM and DIR branch instructions
@@ -1069,7 +1069,7 @@ async def test_bpl_bmi(dut):
             dut.uio_in.value = bpl_ir
 
             #Clock in the first half of the instruction
-            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
+            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_DIR_0(current)
             #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
             await ClockCycles(dut.clk, CYCLES_NOP)
 
@@ -1077,7 +1077,7 @@ async def test_bpl_bmi(dut):
             dut.uio_in.value = test_value & 0x7f
 
             #Clock in the remaining cycles
-            #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
+            #IF BRANCH TAKEN:   S_JMP_DIR_0->S_JMP_DIR_1->S_FETCH_0(current)
             #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
             await ClockCycles(dut.clk, num_cycles - CYCLES_NOP)
 
@@ -1095,12 +1095,12 @@ async def test_bpl_bmi(dut):
             #Test BMI
             #---------------
 
-            #Set data input buss to a JMP_IMM
+            #Set data input buss to a JMP_DIR
             dut._log.info(bmi_str)
             dut.uio_in.value = bmi_ir
 
             #Clock in the first half of the instruction
-            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_IMM_0(current)
+            #IF BRANCH TAKEN:   S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_JMP_DIR_0(current)
             #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2->S_DECODE_0->S_FETCH_0(current)
             await ClockCycles(dut.clk, CYCLES_NOP)
 
@@ -1108,7 +1108,7 @@ async def test_bpl_bmi(dut):
             dut.uio_in.value = test_value & 0x7f
 
             #Clock in the remaining cycles
-            #IF BRANCH TAKEN:   S_JMP_IMM_0->S_JMP_IMM_1->S_FETCH_0(current)
+            #IF BRANCH TAKEN:   S_JMP_DIR_0->S_JMP_DIR_1->S_FETCH_0(current)
             #IF BRANCH SKIPPED: S_FETCH_0->S_FETCH_1->S_FETCH_2(current)
             await ClockCycles(dut.clk, num_cycles - CYCLES_NOP)
 
@@ -1141,11 +1141,11 @@ async def test_bpl_bmi(dut):
             n_state = 1
 
         #Change settings to cover DIR variants
-        bpl_ir       = IR_BPL_DIR
-        bmi_ir       = IR_BMI_DIR
-        bpl_str      = 'IR_BPL_DIR'
-        bmi_str      = 'IR_BMI_DIR'
-        num_cycles   = CYCLES_JMP_DIR
+        bpl_ir       = IR_BPL_IND
+        bmi_ir       = IR_BMI_IND
+        bpl_str      = 'IR_BPL_IND'
+        bmi_str      = 'IR_BMI_IND'
+        num_cycles   = CYCLES_JMP_IND
         extra_cycles = 3 #Needed as we jump through a NOPs worth of instructions plus a PC inc
 
 
