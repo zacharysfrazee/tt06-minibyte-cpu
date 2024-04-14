@@ -2320,7 +2320,7 @@ module minibyte_cu(
 
     //Next state logic
     //--------------------------
-    always @ (curr_state, ir_op_buss_in, ccr_flag_zn_in) begin
+    always @ (curr_state, ir_op_buss_in, ccr_flag_zn_in, halt_in) begin
         //DFT Output
         dft_curr_state = curr_state;
 
@@ -2333,11 +2333,12 @@ module minibyte_cu(
             S_PC_INC_0: next_state = S_FETCH_0;
 
             //Fetch sequence
-            S_FETCH_0:
+            S_FETCH_0: begin
                 if(halt_in == 1)
                     next_state = S_FETCH_0; //Remain in S_FETCH_0 forever if halt is asserted
                 else
                     next_state = S_FETCH_1; //Otherwise continue fetching this instruction
+            end
 
             S_FETCH_1: next_state = S_FETCH_2;
             S_FETCH_2: next_state = S_DECODE_0;
