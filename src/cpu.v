@@ -208,7 +208,7 @@ module minibyte_cpu (
     //--------------------------------
     minibyte_cu cu(
         //Basic Inputs
-        .clk_in(clk_in), .rst_in(rst_in),
+        .clk_in(clk_in), .ena_in(ena_in), .rst_in(rst_in),
 
         //IR Input
         .ir_op_buss_in(ir_op_buss),
