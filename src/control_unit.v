@@ -8,7 +8,7 @@
 //---------------------------------
 module minibyte_cu(
     //Basic Inputs
-    input  wire       clk_in, rst_in,
+    input  wire       clk_in, ena_in, rst_in,
 
     //IR Input
     input  wire [7:0] ir_op_buss_in,
@@ -208,6 +208,10 @@ module minibyte_cu(
         //Reset to S_RESET_0 on reset
         if(!rst_in)
             curr_state <= S_RESET_0;
+
+        //Dont move states if enable is low
+        else if(!ena_in)
+            curr_state <= curr_state;
 
         //Otherwise go to next state on every clk
         else

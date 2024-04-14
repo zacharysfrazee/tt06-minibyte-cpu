@@ -8,7 +8,7 @@
 //---------------------------------
 module minibyte_cpu (
     //Basic Inputs
-    input  wire       clk_in, rst_in,
+    input  wire       clk_in, ena_in, rst_in,
 
     //Memory and IO Inputs
     input  wire [7:0] data_in,

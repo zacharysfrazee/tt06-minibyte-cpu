@@ -81,7 +81,7 @@ module tt_um_minibyte (
     //---------------------------------
     minibyte_cpu cpu(
         //Basic Inputs
-        .clk_in(clk), .rst_in(rst_n),
+        .clk_in(clk), .ena_in(ena), .rst_in(rst_n),
 
         //Memory and IO Inputs
         .data_in(data_buss_muxed_in),
