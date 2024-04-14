@@ -19,8 +19,8 @@
 // LSR       | 0b1000  | Logical shift A right by B
 // ASL       | 0b1001  | Arithmetic shift A left by B
 // ASR       | 0b1010  | Arithmetic shift A right by B
-// RSL       | 0b1011  | Rotatary shift A left by B
-// RSR       | 0b1100  | Rotatary shift A right by B
+// RSL       | 0b1011  | Rotary shift A left by B
+// RSR       | 0b1100  | Rotary shift A right by B
 //---------------------------------------------------------------------------------------------------------
 
 //--------------------------
