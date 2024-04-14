@@ -49,8 +49,8 @@ module minibyte_cu(
     parameter IR_NOP     = 8'h00;
     parameter IR_LDA_IMM = 8'h01;
     parameter IR_LDA_DIR = 8'h02;
-    parameter IR_STA_IMM = 8'h03;
-    parameter IR_STA_DIR = 8'h04;
+    parameter IR_STA_DIR = 8'h03;
+    parameter IR_STA_IND = 8'h04;
     parameter IR_ADD_IMM = 8'h05;
     parameter IR_ADD_DIR = 8'h06;
     parameter IR_SUB_IMM = 8'h07;
@@ -73,16 +73,16 @@ module minibyte_cu(
     parameter IR_RSL_DIR = 8'h18;
     parameter IR_RSR_IMM = 8'h19;
     parameter IR_RSR_DIR = 8'h1A;
-    parameter IR_JMP_IMM = 8'h1B;
-    parameter IR_JMP_DIR = 8'h1C;
-    parameter IR_BNE_IMM = 8'h1D;
-    parameter IR_BNE_DIR = 8'h1E;
-    parameter IR_BEQ_IMM = 8'h1F;
-    parameter IR_BEQ_DIR = 8'h20;
-    parameter IR_BPL_IMM = 8'h21;
-    parameter IR_BPL_DIR = 8'h22;
-    parameter IR_BMI_IMM = 8'h23;
-    parameter IR_BMI_DIR = 8'h24;
+    parameter IR_JMP_DIR = 8'h1B;
+    parameter IR_JMP_IND = 8'h1C;
+    parameter IR_BNE_DIR = 8'h1D;
+    parameter IR_BNE_IND = 8'h1E;
+    parameter IR_BEQ_DIR = 8'h1F;
+    parameter IR_BEQ_IND = 8'h20;
+    parameter IR_BPL_DIR = 8'h21;
+    parameter IR_BPL_IND = 8'h22;
+    parameter IR_BMI_DIR = 8'h23;
+    parameter IR_BMI_IND = 8'h24;
 
     //State machine opcodes
     //--------------------------
@@ -98,16 +98,16 @@ module minibyte_cu(
     parameter S_LDA_DIR_1 = 8'h09;
     parameter S_LDA_DIR_2 = 8'h0A;
     parameter S_LDA_DIR_3 = 8'h0B;
-    parameter S_STA_IMM_0 = 8'h0C;
-    parameter S_STA_IMM_1 = 8'h0D;
-    parameter S_STA_IMM_2 = 8'h0E;
-    parameter S_STA_IMM_3 = 8'h0F;
-    parameter S_STA_DIR_0 = 8'h10;
-    parameter S_STA_DIR_1 = 8'h11;
-    parameter S_STA_DIR_2 = 8'h12;
-    parameter S_STA_DIR_3 = 8'h13;
-    parameter S_STA_DIR_4 = 8'h14;
-    parameter S_STA_DIR_5 = 8'h15;
+    parameter S_STA_DIR_0 = 8'h0C;
+    parameter S_STA_DIR_1 = 8'h0D;
+    parameter S_STA_DIR_2 = 8'h0E;
+    parameter S_STA_DIR_3 = 8'h0F;
+    parameter S_STA_IND_0 = 8'h10;
+    parameter S_STA_IND_1 = 8'h11;
+    parameter S_STA_IND_2 = 8'h12;
+    parameter S_STA_IND_3 = 8'h13;
+    parameter S_STA_IND_4 = 8'h14;
+    parameter S_STA_IND_5 = 8'h15;
     parameter S_ADD_IMM_0 = 8'h16;
     parameter S_ADD_IMM_1 = 8'h17;
     parameter S_ADD_DIR_0 = 8'h18;
@@ -174,12 +174,12 @@ module minibyte_cu(
     parameter S_RSR_DIR_1 = 8'h55;
     parameter S_RSR_DIR_2 = 8'h56;
     parameter S_RSR_DIR_3 = 8'h57;
-    parameter S_JMP_IMM_0 = 8'h58;
-    parameter S_JMP_IMM_1 = 8'h59;
-    parameter S_JMP_DIR_0 = 8'h5A;
-    parameter S_JMP_DIR_1 = 8'h5B;
-    parameter S_JMP_DIR_2 = 8'h5C;
-    parameter S_JMP_DIR_3 = 8'h5D;
+    parameter S_JMP_DIR_0 = 8'h58;
+    parameter S_JMP_DIR_1 = 8'h59;
+    parameter S_JMP_IND_0 = 8'h5A;
+    parameter S_JMP_IND_1 = 8'h5B;
+    parameter S_JMP_IND_2 = 8'h5C;
+    parameter S_JMP_IND_3 = 8'h5D;
 
     //--------------------------
     //ALU OPS
@@ -490,93 +490,6 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //STA_IMM sequence
-            //-----
-
-            //Pass incoming data from memory to the main buss
-            S_STA_IMM_0: begin
-                //Dont set or inc any registers
-                set_a_out    = 0;
-                set_m_out    = 0;
-                set_pc_out   = 0;
-                inc_pc_out   = 0;
-                set_ir_out   = 0;
-                set_ccr_out  = 0;
-
-                //PC selected
-                addr_mux_out = 0;
-
-                //B (mem input) passthrough to main bus
-                alu_op_out   = OP_ALU_PASSB;
-
-                //Dont write or drive
-                we_out       = 0;
-                drive_out    = 0;
-            end
-
-            //Latch data to M
-            S_STA_IMM_1: begin
-                //Latch M
-                set_a_out    = 0;
-                set_m_out    = 1;
-                set_pc_out   = 0;
-                inc_pc_out   = 0;
-                set_ir_out   = 0;
-                set_ccr_out  = 0;
-
-                //PC selected
-                addr_mux_out = 0;
-
-                //B (mem input) passthrough to main bus
-                alu_op_out   = OP_ALU_PASSB;
-
-                //Dont write or drive
-                we_out       = 0;
-                drive_out    = 0;
-            end
-
-            //Set address and WE, also prepare A data on the main buss
-            S_STA_IMM_2: begin
-                //Dont set or inc any registers
-                set_a_out    = 0;
-                set_m_out    = 0;
-                set_pc_out   = 0;
-                inc_pc_out   = 0;
-                set_ir_out   = 0;
-                set_ccr_out  = 0;
-
-                //M selected
-                addr_mux_out = 1;
-
-                //A (A input) passthrough to main bus
-                alu_op_out   = OP_ALU_PASSA;
-
-                //Set WE so that the receiving device is ready for us to drive data
-                we_out       = 1;
-                drive_out    = 0;
-            end
-
-            //Drive the data out
-            S_STA_IMM_3: begin
-                //Dont set or inc any registers
-                set_a_out    = 0;
-                set_m_out    = 0;
-                set_pc_out   = 0;
-                inc_pc_out   = 0;
-                set_ir_out   = 0;
-                set_ccr_out  = 0;
-
-                //M selected
-                addr_mux_out = 1;
-
-                //A (A input) passthrough to main bus
-                alu_op_out   = OP_ALU_PASSA;
-
-                //Drive out A data
-                we_out       = 1;
-                drive_out    = 1;
-            end
-
             //STA_DIR sequence
             //-----
 
@@ -622,51 +535,8 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-
-            //Fetch data located at this address
-            S_STA_DIR_2: begin
-                //Latch M
-                set_a_out    = 0;
-                set_m_out    = 0;
-                set_pc_out   = 0;
-                inc_pc_out   = 0;
-                set_ir_out   = 0;
-                set_ccr_out  = 0;
-
-                //M selected
-                addr_mux_out = 1;
-
-                //B (mem input) passthrough to main bus
-                alu_op_out   = OP_ALU_PASSB;
-
-                //Dont write or drive
-                we_out       = 0;
-                drive_out    = 0;
-            end
-
-            //Latch data to M
-            S_STA_DIR_3: begin
-                //Latch M
-                set_a_out    = 0;
-                set_m_out    = 1;
-                set_pc_out   = 0;
-                inc_pc_out   = 0;
-                set_ir_out   = 0;
-                set_ccr_out  = 0;
-
-                //M selected
-                addr_mux_out = 1;
-
-                //B (mem input) passthrough to main bus
-                alu_op_out   = OP_ALU_PASSB;
-
-                //Dont write or drive
-                we_out       = 0;
-                drive_out    = 0;
-            end
-
             //Set address and WE, also prepare A data on the main buss
-            S_STA_DIR_4: begin
+            S_STA_DIR_2: begin
                 //Dont set or inc any registers
                 set_a_out    = 0;
                 set_m_out    = 0;
@@ -687,7 +557,137 @@ module minibyte_cu(
             end
 
             //Drive the data out
-            S_STA_DIR_5: begin
+            S_STA_DIR_3: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //A (A input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSA;
+
+                //Drive out A data
+                we_out       = 1;
+                drive_out    = 1;
+            end
+
+            //STA_IND sequence
+            //-----
+
+            //Pass incoming data from memory to the main buss
+            S_STA_IND_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to M
+            S_STA_IND_1: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 1;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+
+            //Fetch data located at this address
+            S_STA_IND_2: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to M
+            S_STA_IND_3: begin
+                //Latch M
+                set_a_out    = 0;
+                set_m_out    = 1;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Set address and WE, also prepare A data on the main buss
+            S_STA_IND_4: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //M selected
+                addr_mux_out = 1;
+
+                //A (A input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSA;
+
+                //Set WE so that the receiving device is ready for us to drive data
+                we_out       = 1;
+                drive_out    = 0;
+            end
+
+            //Drive the data out
+            S_STA_IND_5: begin
                 //Dont set or inc any registers
                 set_a_out    = 0;
                 set_m_out    = 0;
@@ -2159,51 +2159,6 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //JMP_IMM sequence
-            //-----
-
-            //Pass incoming data from memory to the main buss
-            S_JMP_IMM_0: begin
-                //Dont set or inc any registers
-                set_a_out    = 0;
-                set_m_out    = 0;
-                set_pc_out   = 0;
-                inc_pc_out   = 0;
-                set_ir_out   = 0;
-                set_ccr_out  = 0;
-
-                //PC selected
-                addr_mux_out = 0;
-
-                //B (mem input) passthrough to main bus
-                alu_op_out   = OP_ALU_PASSB;
-
-                //Dont write or drive
-                we_out       = 0;
-                drive_out    = 0;
-            end
-
-            //Latch data to PC
-            S_JMP_IMM_1: begin
-                //Latch PC
-                set_a_out    = 0;
-                set_m_out    = 0;
-                set_pc_out   = 1;
-                inc_pc_out   = 0;
-                set_ir_out   = 0;
-                set_ccr_out  = 0;
-
-                //PC selected
-                addr_mux_out = 0;
-
-                //B (mem input) passthrough to main bus
-                alu_op_out   = OP_ALU_PASSB;
-
-                //Dont write or drive
-                we_out       = 0;
-                drive_out    = 0;
-            end
-
             //JMP_DIR sequence
             //-----
 
@@ -2228,8 +2183,53 @@ module minibyte_cu(
                 drive_out    = 0;
             end
 
-            //Latch data to M
+            //Latch data to PC
             S_JMP_DIR_1: begin
+                //Latch PC
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 1;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //JMP_IND sequence
+            //-----
+
+            //Pass incoming data from memory to the main buss
+            S_JMP_IND_0: begin
+                //Dont set or inc any registers
+                set_a_out    = 0;
+                set_m_out    = 0;
+                set_pc_out   = 0;
+                inc_pc_out   = 0;
+                set_ir_out   = 0;
+                set_ccr_out  = 0;
+
+                //PC selected
+                addr_mux_out = 0;
+
+                //B (mem input) passthrough to main bus
+                alu_op_out   = OP_ALU_PASSB;
+
+                //Dont write or drive
+                we_out       = 0;
+                drive_out    = 0;
+            end
+
+            //Latch data to M
+            S_JMP_IND_1: begin
                 //Latch M
                 set_a_out    = 0;
                 set_m_out    = 1;
@@ -2250,7 +2250,7 @@ module minibyte_cu(
             end
 
             //Set addr out to M
-            S_JMP_DIR_2: begin
+            S_JMP_IND_2: begin
                 //Dont set or inc any registers
                 set_a_out    = 0;
                 set_m_out    = 0;
@@ -2271,7 +2271,7 @@ module minibyte_cu(
             end
 
             //Latch data to PC
-            S_JMP_DIR_3: begin
+            S_JMP_IND_3: begin
                 //Latch PC
                 set_a_out    = 0;
                 set_m_out    = 0;
@@ -2348,11 +2348,11 @@ module minibyte_cu(
                     //IR_LDA_DIR (load direct value to A)
                     IR_LDA_DIR: next_state = S_LDA_DIR_0;
 
-                    //IR_STA_IMM (store A at immediate address)
-                    IR_STA_IMM: next_state = S_STA_IMM_0;
-
                     //IR_STA_DIR (store A at direct address)
                     IR_STA_DIR: next_state = S_STA_DIR_0;
+
+                    //IR_STA_IND (store A at indirect address)
+                    IR_STA_IND: next_state = S_STA_IND_0;
 
                     //IR_ADD_IMM (add immediate value to A)
                     IR_ADD_IMM: next_state = S_ADD_IMM_0;
@@ -2420,19 +2420,11 @@ module minibyte_cu(
                     //IR_RSR_DIR (rotary right shift direct value with A)
                     IR_RSR_DIR: next_state = S_RSR_DIR_0;
 
-                    //IR_JMP_IMM (load immediate value to PC)
-                    IR_JMP_IMM: next_state = S_JMP_IMM_0;
-
-                    //IR_LDA_DIR (load direct value to PC)
+                    //IR_JMP_DIR (load direct value to PC)
                     IR_JMP_DIR: next_state = S_JMP_DIR_0;
 
-                    //IR_BNE_IMM (banch if z clear immediate)
-                    IR_BNE_IMM: begin
-                        if(ccr_flag_zn_in[1] == 0)
-                            next_state = S_JMP_IMM_0;
-                        else
-                            next_state = S_PC_INC_0;
-                    end
+                    //IR_LDA_DIR (load indirect value to PC)
+                    IR_JMP_IND: next_state = S_JMP_IND_0;
 
                     //IR_BNE_DIR (banch if z clear direct)
                     IR_BNE_DIR: begin
@@ -2442,10 +2434,10 @@ module minibyte_cu(
                             next_state = S_PC_INC_0;
                     end
 
-                    //IR_BEQ_IMM (banch if z set immediate)
-                    IR_BEQ_IMM: begin
-                        if(ccr_flag_zn_in[1] == 1)
-                            next_state = S_JMP_IMM_0;
+                    //IR_BNE_IND (banch if z clear indirect)
+                    IR_BNE_IND: begin
+                        if(ccr_flag_zn_in[1] == 0)
+                            next_state = S_JMP_IND_0;
                         else
                             next_state = S_PC_INC_0;
                     end
@@ -2458,10 +2450,10 @@ module minibyte_cu(
                             next_state = S_PC_INC_0;
                     end
 
-                    //IR_BPL_IMM (banch if n clear immediate)
-                    IR_BPL_IMM: begin
-                        if(ccr_flag_zn_in[0] == 0)
-                            next_state = S_JMP_IMM_0;
+                    //IR_BEQ_IND (banch if z set indirect)
+                    IR_BEQ_IND: begin
+                        if(ccr_flag_zn_in[1] == 1)
+                            next_state = S_JMP_IND_0;
                         else
                             next_state = S_PC_INC_0;
                     end
@@ -2474,10 +2466,10 @@ module minibyte_cu(
                             next_state = S_PC_INC_0;
                     end
 
-                    //IR_BMI_IMM (banch if n set immediate)
-                    IR_BMI_IMM: begin
-                        if(ccr_flag_zn_in[0] == 1)
-                            next_state = S_JMP_IMM_0;
+                    //IR_BPL_IND (banch if n clear indirect)
+                    IR_BPL_IND: begin
+                        if(ccr_flag_zn_in[0] == 0)
+                            next_state = S_JMP_IND_0;
                         else
                             next_state = S_PC_INC_0;
                     end
@@ -2486,6 +2478,14 @@ module minibyte_cu(
                     IR_BMI_DIR: begin
                         if(ccr_flag_zn_in[0] == 1)
                             next_state = S_JMP_DIR_0;
+                        else
+                            next_state = S_PC_INC_0;
+                    end
+
+                    //IR_BMI_IND (banch if n set indirect)
+                    IR_BMI_IND: begin
+                        if(ccr_flag_zn_in[0] == 1)
+                            next_state = S_JMP_IND_0;
                         else
                             next_state = S_PC_INC_0;
                     end
@@ -2506,19 +2506,19 @@ module minibyte_cu(
             S_LDA_DIR_2: next_state = S_LDA_DIR_3;
             S_LDA_DIR_3: next_state = S_PC_INC_0;
 
-            //STA_IMM sequence
-            S_STA_IMM_0: next_state = S_STA_IMM_1;
-            S_STA_IMM_1: next_state = S_STA_IMM_2;
-            S_STA_IMM_2: next_state = S_STA_IMM_3;
-            S_STA_IMM_3: next_state = S_PC_INC_0;
-
             //STA_DIR sequence
             S_STA_DIR_0: next_state = S_STA_DIR_1;
             S_STA_DIR_1: next_state = S_STA_DIR_2;
             S_STA_DIR_2: next_state = S_STA_DIR_3;
-            S_STA_DIR_3: next_state = S_STA_DIR_4;
-            S_STA_DIR_4: next_state = S_STA_DIR_5;
-            S_STA_DIR_5: next_state = S_PC_INC_0;
+            S_STA_DIR_3: next_state = S_PC_INC_0;
+
+            //STA_IND sequence
+            S_STA_IND_0: next_state = S_STA_IND_1;
+            S_STA_IND_1: next_state = S_STA_IND_2;
+            S_STA_IND_2: next_state = S_STA_IND_3;
+            S_STA_IND_3: next_state = S_STA_IND_4;
+            S_STA_IND_4: next_state = S_STA_IND_5;
+            S_STA_IND_5: next_state = S_PC_INC_0;
 
             //ADD_IMM sequence
             S_ADD_IMM_0: next_state = S_ADD_IMM_1;
@@ -2630,15 +2630,15 @@ module minibyte_cu(
             S_RSR_DIR_2: next_state = S_RSR_DIR_3;
             S_RSR_DIR_3: next_state = S_PC_INC_0;
 
-            //JMP_IMM sequence
-            S_JMP_IMM_0: next_state = S_JMP_IMM_1;
-            S_JMP_IMM_1: next_state = S_FETCH_0;
-
             //JMP_DIR sequence
             S_JMP_DIR_0: next_state = S_JMP_DIR_1;
-            S_JMP_DIR_1: next_state = S_JMP_DIR_2;
-            S_JMP_DIR_2: next_state = S_JMP_DIR_3;
-            S_JMP_DIR_3: next_state = S_FETCH_0;
+            S_JMP_DIR_1: next_state = S_FETCH_0;
+
+            //JMP_IND sequence
+            S_JMP_IND_0: next_state = S_JMP_IND_1;
+            S_JMP_IND_1: next_state = S_JMP_IND_2;
+            S_JMP_IND_2: next_state = S_JMP_IND_3;
+            S_JMP_IND_3: next_state = S_FETCH_0;
 
             //Should never get here
             default:
