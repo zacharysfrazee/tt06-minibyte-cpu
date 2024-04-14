@@ -73,6 +73,9 @@ The ALU operates on data from the A Register and either direct data from memory 
 
 *Note that DFT and testing features are not represented in the above block diagram
 
+### Power Up State
+
+Upon reset, the device will be initialized with all registers cleared out to 0. This included the program counter (PC register). It is expected that the program memory will start at address 0x00 to begin execution.
 
 ### Instruction Set
 
