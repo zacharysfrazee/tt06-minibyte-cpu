@@ -14,7 +14,7 @@ module minibyte_cpu (
     input  wire [7:0] data_in,
 
     //DFT Testmode Inputs
-    input  wire [7:0] tm_control,
+    input  wire [2:0] tm_control,
 
     //Memory and IO Outputs
     output wire [7:0] addr_out,

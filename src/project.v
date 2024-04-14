@@ -87,7 +87,7 @@ module tt_um_minibyte (
         .data_in(data_buss_muxed_in),
 
         //DFT Inputs
-        .tm_control(tm_control_bits),
+        .tm_control({tm_control_bits[2:0]}),
 
         //Memory and IO Outputs
         .addr_out   ({nc_addr_buss_bit_7,address_buss}),  //Only 7 bits get connected as we need to save one output for WE below:(

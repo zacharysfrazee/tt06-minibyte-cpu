@@ -44,10 +44,6 @@ module minibyte_cu(
     //--------------------------
     reg [7:0] curr_state, next_state;
 
-    //DFT Output
-    //--------------------------
-    assign dft_curr_state = curr_state;
-
     //CPU IR opcodes
     //--------------------------
     parameter IR_NOP     = 8'h00;
@@ -2324,6 +2320,10 @@ module minibyte_cu(
     //Next state logic
     //--------------------------
     always @ (curr_state, ir_op_buss_in, ccr_flag_zn_in) begin
+        //DFT Output
+        dft_curr_state = curr_state;
+
+        //Next state logic
         case(curr_state)
             //Reset sequence (skips PC increment on boot)
             S_RESET_0: next_state = S_FETCH_0;
