@@ -154,13 +154,14 @@ This program adds the numbers 0x05 and 0x03 together, and then loops back to the
 
 ### DFT Features
 
-The Minibyte CPU has a few DFT features that should prove helpful on live silicon debug/testing
+The Minibyte CPU has a few DFT features that should prove helpful on live silicon debug/testing. All functions are enabled by an active high signal, so ui_in[7:0] should be tied to zero during normal operation
 
-| ui_in Bit   | Feature          |
-| ---------   | -------          |
-| ui_in [7:4] | Unused           |
-| ui_in [3]   | Enable Demo ROM  |
-| ui_in [2:0] | Debug Out Select |
+| ui_in Bit   | Feature                         |
+| ---------   | -------                         |
+| ui_in [7:5] | Unused                          |
+| ui_in [4]   | Enable Demo ROM                 |
+| ui_in [3]   | Halt Control Unit on Next Fetch |
+| ui_in [2:0] | Debug Out Select                |
 
 The CPU has an extra mux between the normal addr out mux and the uo_out pins. To leverage this ui_in [2:0] can be used to select a debug signal to output on the uo_out[6:0] pins.
 
@@ -191,7 +192,7 @@ To run the test suite, cd into the ./test directory of the project and run "make
 
 The easiest way to test the Minibyte CPU on live silicon is to use the built-in Demo ROM
 
-To enable the Demo ROM, make sure that ui_in[3] is held high on reset, and remains high while the program runs
+To enable the Demo ROM, make sure that ui_in[4] is held high on reset, and remains high while the program runs
 
 The Demo ROM will run the following program
 

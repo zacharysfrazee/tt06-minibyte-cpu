@@ -21,7 +21,8 @@ TM_DEBUG_OUT_IR       = 0x05
 TM_DEBUG_OUT_CCR      = 0x06
 TM_DEBUG_OUT_CU_STATE = 0x07
 
-TM_DEMO_ROM           = 0x08
+TM_HALT_CU            = 0x08
+TM_DEMO_ROM           = 0x10
 
 #IR Opcodes
 #-------------------------

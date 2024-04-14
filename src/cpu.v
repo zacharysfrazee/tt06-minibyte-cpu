@@ -9,6 +9,7 @@
 module minibyte_cpu (
     //Basic Inputs
     input  wire       clk_in, ena_in, rst_in,
+    input  wire       halt_in,
 
     //Memory and IO Inputs
     input  wire [7:0] data_in,
@@ -209,6 +210,7 @@ module minibyte_cpu (
     minibyte_cu cu(
         //Basic Inputs
         .clk_in(clk_in), .ena_in(ena_in), .rst_in(rst_in),
+        .halt_in(halt_in),
 
         //IR Input
         .ir_op_buss_in(ir_op_buss),

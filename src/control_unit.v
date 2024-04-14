@@ -9,6 +9,7 @@
 module minibyte_cu(
     //Basic Inputs
     input  wire       clk_in, ena_in, rst_in,
+    input  wire       halt_in,
 
     //IR Input
     input  wire [7:0] ir_op_buss_in,
@@ -2332,7 +2333,12 @@ module minibyte_cu(
             S_PC_INC_0: next_state = S_FETCH_0;
 
             //Fetch sequence
-            S_FETCH_0: next_state = S_FETCH_1;
+            S_FETCH_0:
+                if(halt_in == 1)
+                    next_state = S_FETCH_0; //Remain in S_FETCH_0 forever if halt is asserted
+                else
+                    next_state = S_FETCH_1; //Otherwise continue fetching this instruction
+
             S_FETCH_1: next_state = S_FETCH_2;
             S_FETCH_2: next_state = S_DECODE_0;
 

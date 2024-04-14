@@ -27,8 +27,9 @@ module tt_um_minibyte (
     //uio_oe         => Output Enable for Data Buss
     //---------------------------------
     //ui_in (Test)
-    //      bit[7:4] => UNUSED
-    //      bit[3]   => ENABLE DEMO ROM
+    //      bit[7:5] => UNUSED
+    //      bit[4]   => ENABLE DEMO ROM
+    //      bit[3]   => HALT CONTROL UNIT
     //      bit[2:0] => DEBUG OUTPUT SIGNAL CONTROL
     //                  0 -> Normal        output
     //                  1 -> A             output
@@ -83,6 +84,8 @@ module tt_um_minibyte (
         //Basic Inputs
         .clk_in(clk), .ena_in(ena), .rst_in(rst_n),
 
+        .halt_in(tm_control_bits[3]),
+
         //Memory and IO Inputs
         .data_in(data_buss_muxed_in),
 
@@ -107,7 +110,7 @@ module tt_um_minibyte (
         .d_in(8'h00),
 
         //Mux Select
-        .sel_in({1'b0,tm_control_bits[3]}),
+        .sel_in({1'b0,tm_control_bits[4]}),
 
         //Mux Output
         .mux_out(data_buss_muxed_in)
