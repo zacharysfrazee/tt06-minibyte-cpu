@@ -184,7 +184,7 @@ To run the test suite, cd into the ./test directory of the project and run "make
 
 ### On Live Silicon
 
-The easiest way to test the Minibyte CPU on live silicon is to use the built-in
+The easiest way to test the Minibyte CPU on live silicon is to use the built-in Demo ROM
 
 To enable the Demo ROM, make sure that ui_in[3] is held high on reset, and remains high while the program runs
 
@@ -217,7 +217,7 @@ To capture the output of the program with LEDs, it is recommended to add a D-Fli
 ### Demo Setup
 ![Demo Schematic](demo_setup.png)
 
-Something like the above schematic is recommended to run the Demo ROM. Note that we should use an inverter as shown on the CLK of the DFF, as we want data to be latched when WE falls back to 0 (after the data has had time to set up and make its way out of the chip). Please also note that you will probably need to run the CPU at a fairly low CLK frequency in order to see the LED activity with the naked eye.
+Something like the above schematic is recommended to run the Demo ROM. Note that we should use an inverter as shown on the CLK of the DFF, as we want data to be latched when WE falls back to 0 (after the data has had time to set up and make its way out of the chip). Please also note that you will probably need to run the CPU at a fairly low CLK frequency in order to see any LED activity with the naked eye.
 
 ### Other Setups
 
