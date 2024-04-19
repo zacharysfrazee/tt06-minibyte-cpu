@@ -27,7 +27,8 @@ module tt_um_minibyte (
     //uio_oe         => Output Enable for Data Buss
     //---------------------------------
     //ui_in (Test)
-    //      bit[7:5] => UNUSED
+    //      bit[7]   => ENABLE ONBOARD REG RAM
+    //      bit[6:5] => UNUSED
     //      bit[4]   => ENABLE DEMO ROM
     //      bit[3]   => HALT CONTROL UNIT
     //      bit[2:0] => DEBUG OUTPUT SIGNAL CONTROL
@@ -58,6 +59,7 @@ module tt_um_minibyte (
     wire [7:0] data_buss_oe;
 
     wire [7:0] data_buss_rom;
+    wire [7:0] data_buss_ram;
 
     wire [7:0] data_buss_muxed_in;
 
@@ -102,15 +104,31 @@ module tt_um_minibyte (
     //---------------------------------
     //Input Device MUX
     //---------------------------------
+    reg [1:0] input_mux_control;
+
+    always @ (tm_control_bits, reg_ram_active) begin
+        //Enable Onboard RAM
+        if(tm_control_bits[7] == 1 && reg_ram_active)
+            input_mux_control = 2'b11;
+
+        //Enable Demo ROM
+        else if(tm_control_bits[4] == 1)
+            input_mux_control = 2'b01;
+
+        //Enable Normal Input
+        else
+            input_mux_control = 2'b00;
+    end
+
     minibyte_genmux_4x input_mux(
         //Mux Inputs
         .a_in(data_buss_in),
         .b_in(data_buss_rom),
         .c_in(8'h00),
-        .d_in(8'h00),
+        .d_in(data_buss_ram),
 
         //Mux Select
-        .sel_in({1'b0,tm_control_bits[4]}),
+        .sel_in(input_mux_control),
 
         //Mux Output
         .mux_out(data_buss_muxed_in)
@@ -125,6 +143,34 @@ module tt_um_minibyte (
 
         //Output Data
         .data_out(data_buss_rom)
+    );
+
+    //---------------------------------
+    //Onboard REG RAM
+    //---------------------------------
+    reg reg_ram_active;
+
+    //Register ram is only active for addresses 0x7c, 0x7d, 0x7e, 0x7f
+    always @ (address_buss) begin
+        if(address_buss >= 7'h7c)
+            reg_ram_active = 1;
+        else
+            reg_ram_active = 0;
+    end
+
+    reg_ram_4B ram(
+        //Input Addr
+        .address(address_buss[1:0]),
+
+        //Input Data
+        .data_in(data_buss_out),
+
+        //Input WE
+        .we_in(we_signal),
+        .en_in(reg_ram_active),
+
+        //Output Data
+        .data_out(data_buss_ram)
     );
 
     //---------------------------------
