@@ -139,7 +139,7 @@ module reg_ram_8B(
     //------------------------------------
     always @ (*) begin
         if (!en_in) begin
-            data_out = 8'hzz;
+            data_out = 8'h00;
             r_we     = 8'h00;
         end
 
@@ -165,7 +165,7 @@ module reg_ram_8B(
                     r_we = 8'b00000000;
             endcase
 
-            data_out = 8'hzz;
+            data_out = 8'h00;
         end
 
         else begin
