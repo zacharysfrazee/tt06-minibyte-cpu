@@ -218,9 +218,10 @@ To run the test suite, cd into the ./test directory of the project and run "make
 
 The easiest way to test the Minibyte CPU on live silicon is to use the built-in Demo ROM
 
-To enable the Demo ROM, make sure that ui_in[4] is held high on reset, and remains high while the program runs
+To enable the Demo ROM, make sure that ui_in[4] and ui_in[7] are held high on reset, and remains high while the program runs
 
-PLEASE NOTE: If you do not have any external RAM connected to the CPU that covers the address range 0x78->0x7B, you will need to enable the memory mapped Gen Purpose Registers using ui_in[7]=1 in order to see 0xDEADBEEF being read and written back out during part 3.
+Holding ui_in[4] will enable the Demo Rom and holding ui_in[7] high will enable the General Purpose Registers
+
 
 The Demo ROM will run the following program
 
