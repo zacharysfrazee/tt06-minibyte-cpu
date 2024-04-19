@@ -137,9 +137,9 @@ module tt_um_minibyte (
     //---------------------------------
     //Demo ROM
     //---------------------------------
-    demo_rom_32B rom(
+    demo_rom_64B rom(
         //Input Addr and Enable
-        .address(address_buss[4:0]), //Lower 5 addr buss bits
+        .address(address_buss[5:0]), //Lower 6 addr buss bits
 
         //Output Data
         .data_out(data_buss_rom)
@@ -150,17 +150,22 @@ module tt_um_minibyte (
     //---------------------------------
     reg reg_ram_active;
 
-    //Register ram is only active for addresses 0x7c, 0x7d, 0x7e, 0x7f
+    //Register ram is only active for addresses
+    //0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f
     always @ (address_buss) begin
-        if(address_buss >= 7'h7c)
+        if(address_buss >= 7'h78)
             reg_ram_active = 1;
         else
             reg_ram_active = 0;
     end
 
-    reg_ram_4B ram(
+    reg_ram_8B ram(
+        //Input CLK and RST
+        .clk_in(clk),
+        .rst_in(rst_n),
+
         //Input Addr
-        .address(address_buss[1:0]),
+        .address(address_buss[2:0]),
 
         //Input Data
         .data_in(data_buss_out),

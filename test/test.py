@@ -23,6 +23,7 @@ TM_DEBUG_OUT_CU_STATE = 0x07
 
 TM_HALT_CU            = 0x08
 TM_DEMO_ROM           = 0x10
+TM_ONBOARD_RAM        = 0x80
 
 #IR Opcodes
 #-------------------------
@@ -1165,7 +1166,7 @@ async def test_demorom(dut):
     #Reset
     dut._log.info("Reset")
     dut.ena.value    = 1
-    dut.ui_in.value  = TM_DEMO_ROM #ENABLE DEMO ROM!!!!
+    dut.ui_in.value  = TM_DEMO_ROM | TM_ONBOARD_RAM #ENABLE DEMO ROM AND RAM!!!!
     dut.uio_in.value = 0
     dut.rst_n.value  = 0
     await ClockCycles(dut.clk, 10)
@@ -1223,4 +1224,22 @@ async def test_demorom(dut):
             #Next clock
             await ClockCycles(dut.clk, 1)
 
+        #Deadbeef Loop
+        #-------
+        expected_values = [0xde, 0xad, 0xbe, 0xef]
+        while expected_values:
+
+            #Check to see if the dut is driving and are on the expected address
+            if dut.uio_oe.value == 0xff and dut.uo_out.value & 0x7f == expected_address:
+                #Make sure WE is set
+                assert dut.uo_out.value & 0x80
+
+                #Make sure the value is correct
+                assert dut.uio_out.value  == expected_values[0]
+
+                #Next value
+                expected_values.pop(0)
+
+            #Next clock
+            await ClockCycles(dut.clk, 1)
 

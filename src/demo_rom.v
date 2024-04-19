@@ -8,7 +8,7 @@
 //--------------------------
 parameter _NOP     = 8'h00;
 parameter _LDA_IMM = 8'h01;
-//parameter _LDA_DIR = 8'h02;
+parameter _LDA_DIR = 8'h02;
 parameter _STA_DIR = 8'h03;
 //parameter _STA_IND = 8'h04;
 parameter _ADD_IMM = 8'h05;
@@ -47,38 +47,74 @@ parameter _BPL_DIR = 8'h21;
 //--------------------------
 //Demo ROM Program
 //--------------------------
-module demo_rom_32B(
+module demo_rom_64B(
     //Input Addr
-    input wire [4:0] address,
+    input wire [5:0] address,
 
     //Output Data
     output reg [7:0] data_out
 );
     always @(address)
         case(address)
-            5'h00:   data_out = _NOP;        //First istr is a NOP
-            5'h01:   data_out = _LDA_IMM;    //Make sure A is zero
-            5'h02:   data_out = 0;
-            5'h03:   data_out = _NOP;        //NOP is the START of the LOOP0
-            5'h04:   data_out = _ADD_IMM;    //ADD 1 to A
-            5'h05:   data_out = 1;
-            5'h06:   data_out = _STA_DIR;    //Write this value to 0x40
-            5'h07:   data_out = 8'h40;
-            5'h08:   data_out = _BNE_DIR;    //Keep branching to LOOP0 until we roll over to 0
-            5'h09:   data_out = 8'h03;
-            5'h0A:   data_out = _LDA_IMM;    //Load a 1 into A
-            5'h0B:   data_out = 1;
-            5'h0C:   data_out = _STA_DIR;    //Write this value to 0x40
-            5'h0D:   data_out = 8'h40;
-            5'h0E:   data_out = _NOP;        //NOP is the START of the LOOP1
-            5'h0F:   data_out = _LSL_IMM;    //Shift A left by 1
-            5'h10:   data_out = 1;
-            5'h11:   data_out = _STA_DIR;    //Write this value to 0x40
-            5'h12:   data_out = 8'h40;
-            5'h13:   data_out = _BPL_DIR;    //Keep branching to LOOP1 until we hit 0b10000000
-            5'h14:   data_out = 8'h0E;
-            5'h15:   data_out = _JMP_DIR;    //Start the whole fun over again!
-            5'h16:   data_out = 8'h00;
+            6'h00:   data_out = _NOP;        //First istr is a NOP
+            6'h01:   data_out = _LDA_IMM;    //Make sure A is zero
+            6'h02:   data_out = 0;
+            6'h03:   data_out = _NOP;        //NOP is the START of the LOOP0
+            6'h04:   data_out = _ADD_IMM;    //ADD 1 to A
+            6'h05:   data_out = 1;
+            6'h06:   data_out = _STA_DIR;    //Write this value to 0x40
+            6'h07:   data_out = 8'h40;
+            6'h08:   data_out = _BNE_DIR;    //Keep branching to LOOP0 until we roll over to 0
+            6'h09:   data_out = 8'h03;
+
+            6'h0A:   data_out = _LDA_IMM;    //Load a 1 into A
+            6'h0B:   data_out = 1;
+            6'h0C:   data_out = _STA_DIR;    //Write this value to 0x40
+            6'h0D:   data_out = 8'h40;
+            6'h0E:   data_out = _NOP;        //NOP is the START of the LOOP1
+            6'h0F:   data_out = _LSL_IMM;    //Shift A left by 1
+            6'h10:   data_out = 1;
+            6'h11:   data_out = _STA_DIR;    //Write this value to 0x40
+            6'h12:   data_out = 8'h40;
+            6'h13:   data_out = _BPL_DIR;    //Keep branching to LOOP1 until we hit 0b10000000
+            6'h14:   data_out = 8'h0E;
+
+            6'h15:   data_out = _LDA_IMM;    //Load DEADBEEF into RAM
+            6'h16:   data_out = 8'hDE;
+            6'h17:   data_out = _STA_DIR;
+            6'h18:   data_out = 8'h78;
+            6'h19:   data_out = _LDA_IMM;
+            6'h1A:   data_out = 8'hAD;
+            6'h1B:   data_out = _STA_DIR;
+            6'h1C:   data_out = 8'h79;
+            6'h1D:   data_out = _LDA_IMM;
+            6'h1E:   data_out = 8'hBE;
+            6'h1F:   data_out = _STA_DIR;
+            6'h20:   data_out = 8'h7A;
+            6'h21:   data_out = _LDA_IMM;
+            6'h22:   data_out = 8'hEF;
+            6'h23:   data_out = _STA_DIR;
+            6'h24:   data_out = 8'h7B;
+
+            6'h25:   data_out = _LDA_DIR;    //READ out the contents of RAM
+            6'h26:   data_out = 8'h78;
+            6'h27:   data_out = _STA_DIR;    //Write this value to 0x40
+            6'h28:   data_out = 8'h40;
+            6'h29:   data_out = _LDA_DIR;    //READ out the contents of RAM
+            6'h2A:   data_out = 8'h79;
+            6'h2B:   data_out = _STA_DIR;    //Write this value to 0x40
+            6'h2C:   data_out = 8'h40;
+            6'h2D:   data_out = _LDA_DIR;    //READ out the contents of RAM
+            6'h2E:   data_out = 8'h7A;
+            6'h2F:   data_out = _STA_DIR;    //Write this value to 0x40
+            6'h30:   data_out = 8'h40;
+            6'h31:   data_out = _LDA_DIR;    //READ out the contents of RAM
+            6'h32:   data_out = 8'h7B;
+            6'h33:   data_out = _STA_DIR;    //Write this value to 0x40
+            6'h34:   data_out = 8'h40;
+
+            6'h35:   data_out = _JMP_DIR;    //Start the whole thing over!
+            6'h36:   data_out = 8'h00;
 
             default: data_out = 0;           //Unused space
         endcase
