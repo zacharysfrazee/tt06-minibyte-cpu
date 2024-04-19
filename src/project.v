@@ -151,21 +151,21 @@ module tt_um_minibyte (
     reg reg_ram_active;
 
     //Register ram is only active for addresses
-    //0x7c, 0x7d, 0x7e, 0x7f
+    //0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f
     always @ (address_buss) begin
-        if(address_buss >= 7'h7C)
+        if(address_buss >= 7'h78)
             reg_ram_active = 1;
         else
             reg_ram_active = 0;
     end
 
-    reg_ram_4B ram(
+    reg_ram_8B ram(
         //Input CLK and RST
         .clk_in(clk),
         .rst_in(rst_n),
 
         //Input Addr
-        .address(address_buss[1:0]),
+        .address(address_buss[2:0]),
 
         //Input Data
         .data_in(data_buss_out),
